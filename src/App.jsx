@@ -1,8 +1,12 @@
-import CreateUser from './components/register'
+import Register from './components/register'
+import Switch from './components/Switch.jsx';
+import SearchContextProvider from './Context';
 
 function App() {
   return (
-    <CreateUser />
+    <SearchContextProvider >
+      <Register />
+    </SearchContextProvider>
   )
 }
 

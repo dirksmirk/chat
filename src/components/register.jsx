@@ -1,73 +1,78 @@
 import { useRef, useState, useEffect } from "react";
-import { FormControl, FormLabel, Button, TextField } from '@mui/material';
+import { FormControl, FormLabel, Button, TextField } from "@mui/material";
 
-const CreateUser = () => {
-    // Refs to store input values
-    const userName = useRef();
-    const password = useRef();
-    const email = useRef();
-    const [users, setUsers] = useState([]);
+const Register = () => {
+  // Refs to store input values
+  const userName = useRef();
+  const password = useRef();
+  const email = useRef();
 
-    useEffect(() => {
-        fetch('https://chatify-api.up.railway.app/users')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setUsers(data);
-                console.log(data);
-            })
-            .catch(error => {
-                console.error(error.message);
-            });
-    }, []);
+  async function handleSubmit(e) {
+    e.preventDefault();
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        
-        if (userName.current.value === '' || password.current.value === '' || email.current.value === '') {
-            alert("Alla fält måste fyllas i.");
-            return; // Stoppa funktionen här om något fält är tomt
-        } if (users.username === users.current.value) {
-            alert("Username or email already exists")
-            return;
-        }
-        const data = {
-            "username": userName.current.value,
-            "password": password.current.value,
-            "email": email.current.value,
-            "avatar": "picture"
-
-        };
-
-        // Send POST request to create auction
-        await fetch('https://chatify-api.up.railway.app/auth/register',{
-            method: 'POST',
-            headers:{
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-         }) 
-         .then(response => response.json())  
-         .then(data => {
-            console.log('Auction created successfully:', data);
-        })
-        .catch(error => {
-            console.error('Error creating auction:', error);
-        });
+    if (
+      userName.current.value === "" ||
+      password.current.value === "" ||
+      email.current.value === ""
+    ) {
+      alert("Alla fält måste fyllas i.");
+      return; // Stoppa funktionen här om något fält är tomt
     }
+    const data = {
+      username: userName.current.value,
+      password: password.current.value,
+      email: email.current.value,
+      avatar: "https://i.ibb.co/j898464/pavatar.jpg",
+    };
 
+    try {
+      const response = await fetch(
+        "https://chatify-api.up.railway.app/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
-    return (
-        <FormControl onSubmit={handleSubmit}>
-            <FormLabel>Enter Name</FormLabel>
-            <TextField></TextField>
-            <Button type="submit">Submit</Button>
-        </FormControl>
-    )
-}
+      // Parse the response JSON
+      const result = await response.json();
+      console.log(result)
 
-export default CreateUser;
+      if (response.ok) {
+        // Handle successful registration
+        console.log("Registration successful:", result);
+      } else {
+        // Handle error response
+        if (result.message === "Username or email already exists") {
+          // Alert the user about the existing username
+          alert(
+            "The username or email you entered already exists. Please choose a different one."
+          );
+        } else {
+          // Handle other possible errors
+          console.error("Error:", result.message);
+          alert("An error occurred: " + result.message);
+        }
+      }
+    } catch (error) {
+      // Handle network or other unexpected errors
+      console.error("Unexpected error:", error);
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
+
+  return (
+    <FormControl onSubmit={handleSubmit}>
+      <FormLabel>Enter Name</FormLabel>
+      <TextField >Username</TextField>
+      <TextField >Email</TextField>
+      <TextField >Password</TextField>
+      <Button type="submit">Submit</Button>
+    </FormControl>
+  );
+};
+
+export default Register;
