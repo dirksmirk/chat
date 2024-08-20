@@ -16,7 +16,7 @@ const Register = () => {
     .then(res => res.json())
     .then(data => setCsrf(data.csrfToken))
 }, []);
-
+  console.log(csrf)
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -36,7 +36,7 @@ const Register = () => {
       avatar: "https://i.ibb.co/j898464/pavatar.jpg",
       csrfToken: csrf,
     };
-
+    console.log(data)
     try {
       const response = await fetch(
         "https://chatify-api.up.railway.app/auth/register",
@@ -58,12 +58,13 @@ const Register = () => {
         console.log("Registration successful:", result);
       } else {
         // Handle error response
-        if (result.message === "Username or email already exists") {
+        if (result.error === "Username or email already exists") {
           // Alert the user about the existing username
           alert(
             "The username or email you entered already exists. Please choose a different one."
           );
-        } else {
+        }
+        else {
           // Handle other possible errors
           console.error("Error:", result.message);
           alert("An error occurred: " + result.message);
@@ -77,12 +78,12 @@ const Register = () => {
   }
 
   return (
-    <FormControl onSubmit={handleSubmit}>
-      <FormLabel>Enter Name</FormLabel>
-      <TextField >Username</TextField>
-      <TextField >Email</TextField>
-      <TextField >Password</TextField>
-      <Button type="submit">Submit</Button>
+    <FormControl>
+      <FormLabel>Enter your information</FormLabel>
+      <TextField required inputRef={userName}></TextField>
+      <TextField required inputRef={password}></TextField>
+      <TextField required inputRef={email}></TextField>
+      <Button type="submit" onClick={handleSubmit}>Submit</Button>
     </FormControl>
   );
 };
