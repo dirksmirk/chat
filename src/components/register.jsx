@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { FormControl, FormLabel, Button, TextField } from "@mui/material";
 
 const Register = () => {
@@ -6,6 +6,16 @@ const Register = () => {
   const userName = useRef();
   const password = useRef();
   const email = useRef();
+
+  const [csrf, setCsrf] = useState('')
+
+  useEffect(() => {
+    fetch('https://chatify-api.up.railway.app/csrf', {
+      method: 'PATCH',
+    })
+    .then(res => res.json())
+    .then(data => setCsrf(data.csrfToken))
+}, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -18,11 +28,13 @@ const Register = () => {
       alert("Alla fält måste fyllas i.");
       return; // Stoppa funktionen här om något fält är tomt
     }
+
     const data = {
       username: userName.current.value,
       password: password.current.value,
       email: email.current.value,
       avatar: "https://i.ibb.co/j898464/pavatar.jpg",
+      csrfToken: csrf,
     };
 
     try {
