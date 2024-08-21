@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { FormControl, FormLabel, Button, TextField } from "@mui/material";
 
 const Register = () => {
@@ -6,8 +7,9 @@ const Register = () => {
   const userName = useRef();
   const password = useRef();
   const email = useRef();
-
   const [csrf, setCsrf] = useState('')
+
+  const Navigate = useNavigate();
 
   useEffect(() => {
     fetch('https://chatify-api.up.railway.app/csrf', {
@@ -56,9 +58,10 @@ const Register = () => {
       if (response.ok) {
         // Handle successful registration
         console.log("Registration successful:", result);
+        Navigate('/log-in');
       } else {
         // Handle error response
-        if (result.error === "Username or email already exists") {
+        if (result.error === "Username or email already exists") {  
           // Alert the user about the existing username
           alert(
             "The username or email you entered already exists. Please choose a different one."
@@ -80,9 +83,9 @@ const Register = () => {
   return (
     <FormControl>
       <FormLabel>Enter your information</FormLabel>
-      <TextField required inputRef={userName}></TextField>
-      <TextField required inputRef={password}></TextField>
-      <TextField required inputRef={email}></TextField>
+      <TextField required inputRef={userName} label="Username" />
+      <TextField required inputRef={password} label="Password" />
+      <TextField required inputRef={email} label="E-mail" />
       <Button type="submit" onClick={handleSubmit}>Submit</Button>
     </FormControl>
   );
