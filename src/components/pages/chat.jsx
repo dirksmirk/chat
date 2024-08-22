@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 
 const Chat = () => {
     return (
-        <TextField >Chat away!</TextField>
+        <TextField label='chat here' />
     )
 }
 

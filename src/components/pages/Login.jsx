@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect} from "react";
+import { useNavigate } from "react-router";
 import { FormControl, FormLabel, Button, TextField } from "@mui/material";
 
 const LogIn = () => {
@@ -7,6 +8,8 @@ const LogIn = () => {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
   const [csrf, setCsrf] = useState('')
+
+  const Navigate = useNavigate();
 
   useEffect(() => {
     fetch('https://chatify-api.up.railway.app/csrf', {
@@ -39,6 +42,7 @@ const LogIn = () => {
   if (response.ok) {
     // Handle successful registration
     console.log("Login succesful!");
+    Navigate('/chat');
   } else {
       // Handle other possible errors
       const errorData = await response.json();
@@ -52,7 +56,7 @@ const LogIn = () => {
 
   // You can store the token in local storage for future requests
   localStorage.setItem('token', token);
-  
+  console.log(token)
  } catch (error) {
       console.error("Unexpected error:", error);
       alert("An unexpected error occurred. Please try again later.");

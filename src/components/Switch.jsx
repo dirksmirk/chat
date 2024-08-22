@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom"
-import Register from "./register";
-import Chat from "./chat";
-import LogIn from "./Login";
-import Profile from "./Profile";
+import Register from "./pages/register";
+import Chat from "./pages/chat";
+import LogIn from "./pages/Login";
+import Profile from "./pages/register";
 
 const Switch = () => {
     return(
