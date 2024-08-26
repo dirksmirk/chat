@@ -47,15 +47,10 @@ const AuthContextProvider = (props) => {
         console.error("Error: ", error);
         alert("An error occurred", error);
       }
-
       const genToken = await response.json();
       setToken(genToken.token);
-  
-      // You can store the token in local storage for future requests
-      sessionStorage.setItem('token', token);
-  
+      sessionStorage.setItem('token', genToken.token);
       setAuth(true);
-      sessionStorage.setItem('auth', true);
    } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
@@ -64,6 +59,7 @@ const AuthContextProvider = (props) => {
   
     useEffect(() => {
       if (token) {
+          // You can store the token in session storage for future requests
           console.log('JWT Token:', token);
       }
   }, [token]); // I CAN SEE THE TOKEN FINALLY
