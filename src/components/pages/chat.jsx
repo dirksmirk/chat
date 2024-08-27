@@ -4,7 +4,7 @@ import { AuthenticateContext } from "../../Context";
 
 const Chat = () => {
     const [sessionStorageValue, setsessionStorageValue] = useState('');
-    const [users, setUsers] = useState([])
+    const [users, setUsers] = useState('')
 
     useEffect(() => {
         const sessionStorageItem = sessionStorage.getItem('token');
@@ -32,13 +32,20 @@ const Chat = () => {
             })
             .then(data => {
                 setUsers(data);
-                console.log('Fetched users:', data);
+                /* console.log('Fetched users:', data); */
             })
             .catch(error => {
                 console.error('Error fetching users:', error);
             });
         }
     }, [sessionStorageValue]);
+
+    useEffect(() => {
+        if (users) {
+            // See when users change
+            console.log('users:', users);
+        }
+    }, [users])
 
     return (
         <TextField label='chat here' />
