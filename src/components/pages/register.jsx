@@ -1,24 +1,17 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useContext } from "react";
 import { useNavigate } from "react-router";
 import { FormControl, FormLabel, Button, TextField } from "@mui/material";
+import { AuthenticateContext } from "../../Context";
 
 const Register = () => {
+  const { csrf } = useContext(AuthenticateContext)
   // Refs to store input values
   const userName = useRef();
   const password = useRef();
   const email = useRef();
-  const [csrf, setCsrf] = useState('')
 
   const Navigate = useNavigate();
-
-  useEffect(() => {
-    fetch('https://chatify-api.up.railway.app/csrf', {
-      method: 'PATCH',
-    })
-    .then(res => res.json())
-    .then(data => setCsrf(data.csrfToken))
-}, []);
-  console.log(csrf)
+  
   async function handleSubmit(e) {
     e.preventDefault();
 
