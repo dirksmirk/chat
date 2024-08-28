@@ -6,7 +6,6 @@ const AuthContextProvider = (props) => {
 
     const userName = useRef();
     const password = useRef();
-    const [token, setToken] = useState('');
     const [error, setError] = useState('');
     const [csrf, setCsrf] = useState('')
   
@@ -48,25 +47,19 @@ const AuthContextProvider = (props) => {
         alert("An error occurred", error);
       }
       const genToken = await response.json();
-      setToken(genToken.token);
       sessionStorage.setItem('token', genToken.token);
+      const decodedJwt = JSON.parse(atob(genToken.token.split('.')[1]));
+      sessionStorage.setItem('decodedToken', decodedJwt);
       setAuth(true);
    } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
       }
     }
-  
-    useEffect(() => {
-      if (token) {
-          // You can store the token in session storage for future requests
-          console.log('JWT Token:', token);
-      }
-  }, [token]); // I CAN SEE THE TOKEN FINALLY
 
     return (
         <AuthenticateContext.Provider value={{ 
-          handleLogin, token, error, 
+          handleLogin, error, 
           userName, password,
           auth, csrf  }}>
             {props.children}
