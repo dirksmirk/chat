@@ -1,13 +1,21 @@
 import { NavLink } from 'react-router-dom';
+import { Container, Switch } from '@mui/material';
+import { useCustomTheme } from '../ThemeContext';
 
 const Header = () => {
+    const { mode, toggleTheme } = useCustomTheme();
 
     return (
         <>
-            <NavLink to='/profile'>Home</NavLink>
-            <NavLink to='/log-in'>Login</NavLink>
-            <NavLink to='/chat'>Chat</NavLink>
-            <NavLink to='/'>Register</NavLink>
+            <Container maxWidth="lg">
+                <Switch checked={mode === "dark"} onChange={toggleTheme} />
+            </Container>
+            <Container>
+                <NavLink to='/'>Home</NavLink>
+                <NavLink to='/log-in'>Login</NavLink>
+                <NavLink to='/chat'>Chat</NavLink>
+                <NavLink to='/register'>Register</NavLink>
+            </Container>
         </>
     )
 }
