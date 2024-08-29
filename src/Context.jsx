@@ -61,7 +61,7 @@ const AuthContextProvider = (props) => {
         <AuthenticateContext.Provider value={{ 
           handleLogin, error, 
           userName, password,
-          auth, csrf  }}>
+          auth, setAuth, csrf  }}>
             {props.children}
         </AuthenticateContext.Provider>
     );

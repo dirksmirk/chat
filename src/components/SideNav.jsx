@@ -54,7 +54,6 @@ function SideNav() {
         {auth && (
           <MenuItem
             icon={<ContactsOutlinedIcon />}
-             // Logout handler
           >
             Logout
           </MenuItem>
