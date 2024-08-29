@@ -4,9 +4,10 @@ const Profile = () => {
 
     return (
         <FormControl>
-          <FormLabel>Login!</FormLabel>
+          <FormLabel>Change your settings</FormLabel>
           <TextField >Username</TextField>
-          <TextField >Password</TextField>
+          <TextField >e-mail</TextField>
+          <TextField >picture</TextField>
           <Button type="submit">Submit</Button>
         </FormControl>
       );
