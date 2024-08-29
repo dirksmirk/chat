@@ -8,6 +8,7 @@ const Home = () => {
       sx={{
         justifyContent: "center",
         alignItems: "center",
+        width: "100%"
       }}
     >
       <Typography variant="h1">Dispatch</Typography>
@@ -15,26 +16,32 @@ const Home = () => {
         sx={{
           justifyContent: "center",
           alignItems: "center",
-          width: "50%",
+          width: "25%",
         }}
       >
-        <Typography variant="subtitle1">- or des·patch </Typography>
+        <Typography variant="subtitle1"
+        sx={{
+          margin: "1%",
+          marginLeft: "10%"
+        }}
+        >- or des·patch </Typography>
         <Typography
           variant="subtitle1"
           sx={{
-            width: "50%",
+            margin: "1%",
+            marginLeft:"5%"
           }}
         >
           {" "}
           verb (used with object){" "}
         </Typography>
+        <Container 
+        sx={{
+          margin: "1%",
+        }}>
         <Typography
           variant="subtitle1"
-          display="block"
-          sx={{
-            width: "50%",
-          }}
-        >
+          >
           {" "}
           1. to send off or away with speed, as a messenger, telegram, body of
           troops, etc.{" "}
@@ -44,6 +51,7 @@ const Home = () => {
           2. to dismiss (a person), as after an audience.
         </Typography>
         <Typography> 3. to put to death; kill:</Typography>
+          </Container>
         <Typography>The message was promptly dispatched.</Typography>
       </Container>
       <Container

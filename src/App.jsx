@@ -9,9 +9,10 @@ function App() {
   return (
     <CustomThemeProvider>
       <SearchContextProvider>
+        <div style={({ display: "flex" })}>
         <SideNav />
-        <Header />
         <Switch />
+        </div>
       </SearchContextProvider>
     </CustomThemeProvider>
   )
