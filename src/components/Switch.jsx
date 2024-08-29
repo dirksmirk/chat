@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom"
 import Register from "./pages/register";
 import Chat from "./pages/chat";
 import LogIn from "./pages/Login";
-import Profile from "./pages/register";
+import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 
 const Switch = () => {

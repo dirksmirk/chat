@@ -4,14 +4,17 @@ import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { Container, Switch } from "@mui/material";
+import { Container, Switch} from "@mui/material";
 import { useCustomTheme } from "../ThemeContext";
+import { AuthenticateContext } from "../Context";
 
 function SideNav() {
+  const { auth } = useContext(AuthenticateContext)
   const [collapsed, setCollapsed] = useState(true);
   const { mode, toggleTheme } = useCustomTheme();
+
 
   return (
     <Sidebar style={{ height: "100vh" }} collapsed={collapsed}>
@@ -28,17 +31,34 @@ function SideNav() {
           <MenuItem icon={<HomeOutlinedIcon />}>Home</MenuItem>
         </NavLink>
         {/* Replace login with chat when logged in and vice versa */}
-        <NavLink to="/log-in">
+        { auth ? (
+        <NavLink to="/chat">
+          <MenuItem icon={<ReceiptOutlinedIcon />}>Chat</MenuItem>
+        </NavLink>
+        ) : ( 
+          <NavLink to="/log-in">
           <MenuItem icon={<PeopleOutlinedIcon />}>Login</MenuItem>
         </NavLink>
+        )}
         {/* Remove register when logged in, instead display profile */}
-        <NavLink to="/register">
-          <MenuItem icon={<ContactsOutlinedIcon />}>Register</MenuItem>
-        </NavLink>
-        <NavLink to="/chat">
-          <MenuItem icon={<ReceiptOutlinedIcon />}>Profile</MenuItem>
-        </NavLink>
-        
+        {auth ? (
+          <NavLink to="/profile">
+            <MenuItem icon={<ReceiptOutlinedIcon />}>Profile</MenuItem>
+          </NavLink>
+        ) : (
+          <NavLink to="/register">
+            <MenuItem icon={<ContactsOutlinedIcon />}>Register</MenuItem>
+          </NavLink>
+        )}
+        {/* Insert logout button when logged in */}
+        {auth && (
+          <MenuItem
+            icon={<ContactsOutlinedIcon />}
+             // Logout handler
+          >
+            Logout
+          </MenuItem>
+        )}
           {" "}
           <Switch checked={mode === "dark"} onChange={toggleTheme} />{" "}
         
