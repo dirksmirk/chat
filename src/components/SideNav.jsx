@@ -11,10 +11,9 @@ import { useCustomTheme } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
 function SideNav() {
-  const { auth } = useContext(AuthenticateContext)
+  const { auth, logout } = useContext(AuthenticateContext)
   const [collapsed, setCollapsed] = useState(true);
   const { mode, toggleTheme } = useCustomTheme();
-
 
   return (
     <Sidebar style={{ height: "100vh" }} collapsed={collapsed}>
@@ -54,6 +53,7 @@ function SideNav() {
         {auth && (
           <MenuItem
             icon={<ContactsOutlinedIcon />}
+            onClick={logout}
           >
             Logout
           </MenuItem>

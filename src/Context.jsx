@@ -1,4 +1,5 @@
 import { useState, createContext, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router';
 
 export const AuthenticateContext = createContext();
 
@@ -10,6 +11,8 @@ const AuthContextProvider = (props) => {
     const [csrf, setCsrf] = useState('')
   
     const [auth, setAuth] = useState((sessionStorage.getItem('auth') === 'true') || false)
+
+    const logoutNavigate = useNavigate();
   
     useEffect(() => {
       fetch('https://chatify-api.up.railway.app/csrf', {
@@ -57,11 +60,17 @@ const AuthContextProvider = (props) => {
       }
     }
 
+    const logout = () => {
+      sessionStorage.removeItem('token')
+      setAuth(false);
+      logoutNavigate('/')
+    }
+
     return (
         <AuthenticateContext.Provider value={{ 
           handleLogin, error, 
           userName, password,
-          auth, setAuth, csrf  }}>
+          auth, logout, csrf  }}>
             {props.children}
         </AuthenticateContext.Provider>
     );
