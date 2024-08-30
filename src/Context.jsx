@@ -49,6 +49,8 @@ const AuthContextProvider = (props) => {
         console.error("Error: ", error);
         alert("An error occurred", error);
       }
+      // Either set up w if so that token is saved to local or sessionstorage based on user input
+      // OR just change so that token saves to a cookie that expires after a certain time
       const genToken = await response.json();
       localStorage.setItem('token', genToken.token);
       const decodedJwt = JSON.parse(atob(genToken.token.split('.')[1]));

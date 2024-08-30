@@ -1,6 +1,6 @@
 import { useEffect, useContext} from "react";
 import { useNavigate } from "react-router";
-import { FormControl, FormLabel, Button, TextField } from "@mui/material";
+import { FormControl, FormLabel, Button, TextField, Checkbox } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
 
 const LogIn = () => {
@@ -22,7 +22,9 @@ const LogIn = () => {
           <FormLabel>Login!</FormLabel>
           <TextField required inputRef={userName} label="Username" />
           <TextField required inputRef={password} label="Password" />
+          <Checkbox label="I want to stay logged in" />
           <Button type="submit" onClick={handleLogin}>Submit</Button>
+          <button onClick={() => methodDoesNotExist()}>Break the world</button>
         </FormControl>
       );
 }
