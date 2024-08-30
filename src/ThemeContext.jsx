@@ -1,8 +1,8 @@
-import { createContext, useState, useMemo, useContext } from 'react';
+import { createContext, useState, useMemo } from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
 // Create the ThemeContext
-const ThemeContext = createContext();
+export const ThemeContext = createContext();
 
 // Define dark and light themes
 const darkTheme = createTheme({
@@ -24,7 +24,7 @@ const lightTheme = createTheme({
 });
 
 // Create a ThemeProvider component
-export const CustomThemeProvider = ({ children }) => {
+const CustomThemeProvider = (props) => {
   const [mode, setMode] = useState("light");
 
   const toggleTheme = () => {
@@ -38,11 +38,11 @@ export const CustomThemeProvider = ({ children }) => {
     <ThemeContext.Provider value={{ mode, toggleTheme }}>
       <ThemeProvider theme={selectedTheme}>
         <CssBaseline />
-        {children}
+        {props.children}
       </ThemeProvider>
     </ThemeContext.Provider>
   );
 };
 
 // Create a custom hook to use the ThemeContext
-export const useCustomTheme = () => useContext(ThemeContext);
+export default CustomThemeProvider;

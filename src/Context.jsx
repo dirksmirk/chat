@@ -50,9 +50,9 @@ const AuthContextProvider = (props) => {
         alert("An error occurred", error);
       }
       const genToken = await response.json();
-      sessionStorage.setItem('token', genToken.token);
+      localStorage.setItem('token', genToken.token);
       const decodedJwt = JSON.parse(atob(genToken.token.split('.')[1]));
-      sessionStorage.setItem('decodedToken', decodedJwt);
+      localStorage.setItem('decodedToken', decodedJwt);
       setAuth(true);
    } catch (error) {
         console.error("Unexpected error:", error);
@@ -61,7 +61,7 @@ const AuthContextProvider = (props) => {
     }
 
     const logout = () => {
-      sessionStorage.removeItem('token')
+      localStorage.removeItem('token')
       setAuth(false);
       logoutNavigate('/')
     }

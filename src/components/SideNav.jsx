@@ -7,13 +7,13 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { Container, Switch} from "@mui/material";
-import { useCustomTheme } from "../ThemeContext";
+import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
 function SideNav() {
   const { auth, logout } = useContext(AuthenticateContext)
   const [collapsed, setCollapsed] = useState(true);
-  const { mode, toggleTheme } = useCustomTheme();
+  const { mode, toggleTheme } = useContext(ThemeContext);
 
   return (
     <Sidebar style={{ height: "100vh" }} collapsed={collapsed}>
