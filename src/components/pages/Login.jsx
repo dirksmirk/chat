@@ -5,7 +5,7 @@ import { AuthenticateContext } from "../../Context";
 
 const LogIn = () => {
     const { handleLogin,
-      userName, password,
+      loginUser, password,
       auth } = useContext(AuthenticateContext)
 
       const Navigate = useNavigate();
@@ -20,11 +20,10 @@ const LogIn = () => {
     return (
         <FormControl>
           <FormLabel>Login!</FormLabel>
-          <TextField required inputRef={userName} label="Username" />
+          <TextField required inputRef={loginUser} label="Username" />
           <TextField required inputRef={password} label="Password" />
           <Checkbox label="I want to stay logged in" />
           <Button type="submit" onClick={handleLogin}>Submit</Button>
-          <button onClick={() => methodDoesNotExist()}>Break the world</button>
         </FormControl>
       );
 }

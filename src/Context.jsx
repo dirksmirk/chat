@@ -5,12 +5,18 @@ export const AuthenticateContext = createContext();
 
 const AuthContextProvider = (props) => {
 
-    const userName = useRef();
+    const loginUser = useRef();
     const password = useRef();
+    const mail = useRef();
     const [error, setError] = useState('');
     const [csrf, setCsrf] = useState('')
   
-    const [auth, setAuth] = useState((sessionStorage.getItem('auth') === 'true') || false)
+    const [auth, setAuth] = useState(false)
+    const [decodedToken, setDecodedToken] = useState('')
+
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [avatar, setAvatar] = useState('')
 
     const logoutNavigate = useNavigate();
   
@@ -22,12 +28,20 @@ const AuthContextProvider = (props) => {
       .then(data => setCsrf(data.csrfToken))
   }, []);
     console.log(csrf)
+
+    useEffect(() => {
+      if (decodedToken) {
+        setUsername(decodedToken.user)
+        setEmail(decodedToken.email)
+        setAvatar(decodedToken.avatar)
+      }
+    }, [decodedToken])
   
     async function handleLogin(e) {
       e.preventDefault(e);
       
       const data = {
-        username: userName.current.value,
+        username: loginUser.current.value,
         password: password.current.value,
         csrfToken: csrf,
       };
@@ -53,17 +67,19 @@ const AuthContextProvider = (props) => {
       // OR just change so that token saves to a cookie that expires after a certain time
       const genToken = await response.json();
       localStorage.setItem('token', genToken.token);
-      const decodedJwt = JSON.parse(atob(genToken.token.split('.')[1]));
-      localStorage.setItem('decodedToken', decodedJwt);
+      const decodedToken = JSON.parse(atob(genToken.token.split('.')[1]));
+      setDecodedToken(decodedToken);
+      localStorage.setItem('decodedToken', decodedToken);
+
       setAuth(true);
-   } catch (error) {
+    } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
       }
     }
 
     const logout = () => {
-      localStorage.removeItem('token')
+      localStorage.clear();
       setAuth(false);
       logoutNavigate('/')
     }
@@ -71,7 +87,10 @@ const AuthContextProvider = (props) => {
     return (
         <AuthenticateContext.Provider value={{ 
           handleLogin, error, 
-          userName, password,
+          loginUser, password, mail,
+          username, setUsername,
+          email, setEmail,
+          avatar, setAvatar,
           auth, logout, csrf  }}>
             {props.children}
         </AuthenticateContext.Provider>

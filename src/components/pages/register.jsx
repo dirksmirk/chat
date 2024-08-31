@@ -1,14 +1,11 @@
-import { useRef, useContext } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router";
 import { FormControl, FormLabel, Button, TextField } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
 
 const Register = () => {
-  const { csrf } = useContext(AuthenticateContext)
+  const { csrf, loginUser, password, mail } = useContext(AuthenticateContext)
   // Refs to store input values
-  const userName = useRef();
-  const password = useRef();
-  const email = useRef();
 
   const Navigate = useNavigate();
   
@@ -16,18 +13,18 @@ const Register = () => {
     e.preventDefault();
 
     if (
-      userName.current.value === "" ||
+      loginUser.current.value === "" ||
       password.current.value === "" ||
-      email.current.value === ""
+      mail.current.value === ""
     ) {
       alert("Alla fält måste fyllas i.");
       return; // Stoppa funktionen här om något fält är tomt
     }
 
     const data = {
-      username: userName.current.value,
+      username: loginUser.current.value,
       password: password.current.value,
-      email: email.current.value,
+      email: mail.current.value,
       avatar: "https://i.ibb.co/j898464/pavatar.jpg",
       csrfToken: csrf,
     };
@@ -50,7 +47,7 @@ const Register = () => {
 
       if (response.ok) {
         // Handle successful registration
-        console.log("Registration successful:", result);
+        console.log("Registration successful:", result.message);
         Navigate('/log-in');
       } else {
         // Handle error response
@@ -76,9 +73,9 @@ const Register = () => {
   return (
     <FormControl>
       <FormLabel>Enter your information</FormLabel>
-      <TextField required inputRef={userName} label="Username" />
+      <TextField required inputRef={loginUser} label="Username" />
       <TextField required inputRef={password} label="Password" />
-      <TextField required inputRef={email} label="E-mail" />
+      <TextField required inputRef={mail} label="E-mail" />
       <Button type="submit" onClick={handleSubmit}>Submit</Button>
     </FormControl>
   );
