@@ -6,22 +6,14 @@ const Chat = () => {
     const [localStorageValue, setlocalStorageValue] = useState('');
     const [users, setUsers] = useState('')
 
-    useEffect(() => {
-        const localStorageItem = localStorage.getItem('token');
-        if (localStorageItem) {
-            setlocalStorageValue(localStorageItem);
-        }
-    }, []);
-
-    console.log('JWT Token:', localStorageValue);
+    console.log('JWT Token:', localStorage.getItem('token'));
     // Getting 401 error, not authorized. Do I need to send the JWT along somehow?
     useEffect(() => {
-        if (localStorageValue) {
             fetch('https://chatify-api.up.railway.app/users', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorageValue}`
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             })
             .then(response => {
@@ -37,8 +29,8 @@ const Chat = () => {
             .catch(error => {
                 console.error('Error fetching users:', error);
             });
-        }
-    }, [localStorageValue]);
+        
+    }, []);
 
     useEffect(() => {
         if (users) {

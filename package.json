@@ -17,6 +17,7 @@
     "@mui/material": "^5.16.7",
     "@sentry/react": "^8.27.0",
     "@sentry/vite-plugin": "^2.22.3",
+    "mui-file-input": "^6.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-pro-sidebar": "^1.1.0",
