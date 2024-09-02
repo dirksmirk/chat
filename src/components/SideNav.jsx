@@ -1,9 +1,11 @@
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
+import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
+import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { Divider, Switch} from "@mui/material";
@@ -35,27 +37,27 @@ function SideNav() {
         {/* Replace login with chat when logged in and vice versa */}
         { localStorage.getItem('auth') ? (
         <NavLink to="/chat">
-          <MenuItem icon={<ReceiptOutlinedIcon />}>Chat</MenuItem>
+          <MenuItem icon={<ChatOutlinedIcon />}>Chat</MenuItem>
         </NavLink>
         ) : ( 
           <NavLink to="/log-in">
-          <MenuItem icon={<PeopleOutlinedIcon />}>Login</MenuItem>
+          <MenuItem icon={<LoginOutlinedIcon />}>Login</MenuItem>
         </NavLink>
         )}
         {/* Remove register when logged in, instead display profile */}
         { localStorage.getItem('auth') ? (
           <NavLink to="/profile">
-            <MenuItem icon={<ReceiptOutlinedIcon />}>Profile</MenuItem>
+            <MenuItem icon={<AccountBoxOutlinedIcon />}>Profile</MenuItem>
           </NavLink>
         ) : (
           <NavLink to="/register">
-            <MenuItem icon={<ContactsOutlinedIcon />}>Register</MenuItem>
+            <MenuItem icon={<PersonAddAltOutlinedIcon />}>Register</MenuItem>
           </NavLink>
         )}
         {/* Insert logout button when logged in */}
         { localStorage.getItem('auth') && (
           <MenuItem
-            icon={<ContactsOutlinedIcon />}
+            icon={<LogoutIcon />}
             onClick={logout}
           >
             Logout

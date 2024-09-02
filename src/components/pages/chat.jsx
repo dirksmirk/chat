@@ -1,9 +1,11 @@
 import { TextField, List, ListItem, ListItemText, Button, Grid,  } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const Chat = () => {
-    const [users, setUsers] = useState('')
+    const inputUserId = useRef();
+    const [users, setUsers] = useState([])
     const [guid, setGuid] = useState('');
+    const [inviteResponse, setInviteResponse] = useState(false);
 
     const getAllUsers = () => {
             fetch('https://chatify-api.up.railway.app/users', {
@@ -40,16 +42,18 @@ const Chat = () => {
             (c === 'x' ? Math.floor(Math.random() * 16) : (Math.floor(Math.random() * 4) + 8)).toString(16)
         );
         setGuid(newGuid);
+        console.log("GuID has been generated!")
+        console.log(guid)
     };
 
-    const inviteUser = (userId) => {
+    const inviteUser = () => {
         if (!guid) {
             console.error('GUID is not generated or is empty');
             alert('could not invite.')
             return;
         }
         
-        fetch(`https://chatify-api.up.railway.app/invite/${userId}`, {
+        fetch(`https://chatify-api.up.railway.app/invite/${inputUserId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -65,19 +69,43 @@ const Chat = () => {
             }
             return response.json();
         })
-        .then(() => {
+        .then((data) => {
             setTimeout(() => {
-                setIsInviteResponse(true);
+                setInviteResponse(true);
             }, 3000);
+            console.log("You invited a user!")
+            console.log(data)
         })
         .catch(error => {
             console.error('There was a problem with your fetch operation:', error);
         })
-        .finally (() => {
-            // Reset guid value and everything
-            generateGuid();
-        })
     };
+
+    const sendMessage = async () => {
+
+        try {
+            const response = await fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+                body: JSON.stringify({
+/*                     "text": "Hello, world!",
+                    "conversationId": "550e8400-e29b-41d4-a716-446655440000" */
+                })
+            })
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('message succesfully sent: ', data)
+            } else {
+                console.log('Error sending message:', data)
+            }
+        } catch (error) {
+            console.error('Network error:', error)
+        }
+    }
 
     return (
         <Grid container spacing={0}>
@@ -89,6 +117,10 @@ const Chat = () => {
             </Grid>
             <Grid size={2}>
             <Button onClick={generateGuid}>Generate guid!</Button>
+            </Grid>
+            <Grid size={2}>
+            <TextField label='enter userID' inputRef={inputUserId} />
+            <Button onClick={inviteUser}>Invite User!</Button>
             </Grid>
         </Grid>
     )
