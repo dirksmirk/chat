@@ -11,7 +11,6 @@ const AuthContextProvider = (props) => {
     const [error, setError] = useState('');
     const [csrf, setCsrf] = useState('')
   
-    const [auth, setAuth] = useState(false)
     const [decodedToken, setDecodedToken] = useState('')
 
     const [username, setUsername] = useState('')
@@ -27,15 +26,6 @@ const AuthContextProvider = (props) => {
       .then(res => res.json())
       .then(data => setCsrf(data.csrfToken))
   }, []);
-    console.log(csrf)
-
-    useEffect(() => {
-      if (decodedToken) {
-        localStorage.setItem('username', decodedToken.user)
-        localStorage.setItem('email', decodedToken.email)
-        localStorage.setItem('avatar', decodedToken.avatar)
-      }
-    }, [decodedToken])
   
     async function handleLogin(e) {
       e.preventDefault(e);
@@ -70,7 +60,7 @@ const AuthContextProvider = (props) => {
       const decodedToken = JSON.parse(atob(genToken.token.split('.')[1]));
       setDecodedToken(decodedToken);
       localStorage.setItem('decodedToken', JSON.stringify(decodedToken));
-      localStorage.setItem('auth', auth)
+      localStorage.setItem('auth', true)
     } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
@@ -89,7 +79,7 @@ const AuthContextProvider = (props) => {
           username, setUsername,
           email, setEmail,
           avatar, setAvatar,
-          auth, logout, csrf  }}>
+          logout, csrf  }}>
             {props.children}
         </AuthenticateContext.Provider>
     );

@@ -6,7 +6,7 @@ import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { Container, Switch} from "@mui/material";
+import { Divider, Switch} from "@mui/material";
 import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
@@ -23,8 +23,11 @@ function SideNav() {
           onClick={() => setCollapsed(!collapsed)}
           style={{ textAlign: "center" }}
         >
-          {" "}
-          <h2>Sidebar</h2>
+          { localStorage.getItem('auth') ? (
+              <h2>Hi user!</h2>
+          ) : (
+             <h2>Navigation</h2>
+          )}
         </MenuItem>
         <NavLink to="/">
           <MenuItem icon={<HomeOutlinedIcon />}>Home</MenuItem>
@@ -58,9 +61,8 @@ function SideNav() {
             Logout
           </MenuItem>
         )}
-          {" "}
-          <Switch checked={mode === "dark"} onChange={toggleTheme} />{" "}
-        
+        <Divider variant="middle" component="menu" />
+          <Switch checked={mode === "dark"} onChange={toggleTheme} />
       </Menu>
     </Sidebar>
   );

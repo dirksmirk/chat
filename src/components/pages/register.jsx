@@ -48,13 +48,11 @@ const Register = () => {
         }
       );
 
-      // Parse the response JSON
       const result = await response.json();
-      console.log(result)
 
       if (response.ok) {
         // Handle successful registration
-        console.log("Registration successful:", result.message);
+        console.log("Registration successful: ", result.message);
         Navigate('/log-in');
       } else {
         // Handle error response

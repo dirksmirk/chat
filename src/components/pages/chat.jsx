@@ -1,13 +1,11 @@
-import { TextField, List, ListItem, ListItemText,  } from "@mui/material";
+import { TextField, List, ListItem, ListItemText, Button, Grid,  } from "@mui/material";
 import { useEffect, useState } from "react";
-import { AuthenticateContext } from "../../Context";
 
 const Chat = () => {
     const [users, setUsers] = useState('')
+    const [guid, setGuid] = useState('');
 
-    console.log('JWT Token:', localStorage.getItem('token'));
-    // Getting 401 error, not authorized. Do I need to send the JWT along somehow?
-    useEffect(() => {
+    const getAllUsers = () => {
             fetch('https://chatify-api.up.railway.app/users', {
                 method: 'GET',
                 headers: {
@@ -28,8 +26,7 @@ const Chat = () => {
             .catch(error => {
                 console.error('Error fetching users:', error);
             });
-        
-    }, []);
+    }
 
     useEffect(() => {
         if (users) {
@@ -38,8 +35,62 @@ const Chat = () => {
         }
     }, [users])
 
+    const generateGuid = () => {
+        const newGuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => 
+            (c === 'x' ? Math.floor(Math.random() * 16) : (Math.floor(Math.random() * 4) + 8)).toString(16)
+        );
+        setGuid(newGuid);
+    };
+
+    const inviteUser = (userId) => {
+        if (!guid) {
+            console.error('GUID is not generated or is empty');
+            alert('could not invite.')
+            return;
+        }
+        
+        fetch(`https://chatify-api.up.railway.app/invite/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({
+                conversationId: guid,
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Problem with inviting user');
+            }
+            return response.json();
+        })
+        .then(() => {
+            setTimeout(() => {
+                setIsInviteResponse(true);
+            }, 3000);
+        })
+        .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+        })
+        .finally (() => {
+            // Reset guid value and everything
+            generateGuid();
+        })
+    };
+
     return (
-        <TextField label='chat here' />
+        <Grid container spacing={0}>
+            <Grid size={4}>
+            <TextField label='chat here' />
+            </Grid>
+            <Grid size={2}>
+            <Button onClick={getAllUsers}>Get all users!</Button>
+            </Grid>
+            <Grid size={2}>
+            <Button onClick={generateGuid}>Generate guid!</Button>
+            </Grid>
+        </Grid>
     )
 }
 
