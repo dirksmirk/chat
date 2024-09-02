@@ -11,7 +11,7 @@ import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
 function SideNav() {
-  const { auth, logout } = useContext(AuthenticateContext)
+  const { logout } = useContext(AuthenticateContext)
   const [collapsed, setCollapsed] = useState(true);
   const { mode, toggleTheme } = useContext(ThemeContext);
 
@@ -30,7 +30,7 @@ function SideNav() {
           <MenuItem icon={<HomeOutlinedIcon />}>Home</MenuItem>
         </NavLink>
         {/* Replace login with chat when logged in and vice versa */}
-        { auth ? (
+        { localStorage.getItem('auth') ? (
         <NavLink to="/chat">
           <MenuItem icon={<ReceiptOutlinedIcon />}>Chat</MenuItem>
         </NavLink>
@@ -40,7 +40,7 @@ function SideNav() {
         </NavLink>
         )}
         {/* Remove register when logged in, instead display profile */}
-        {auth ? (
+        { localStorage.getItem('auth') ? (
           <NavLink to="/profile">
             <MenuItem icon={<ReceiptOutlinedIcon />}>Profile</MenuItem>
           </NavLink>
@@ -50,7 +50,7 @@ function SideNav() {
           </NavLink>
         )}
         {/* Insert logout button when logged in */}
-        {auth && (
+        { localStorage.getItem('auth') && (
           <MenuItem
             icon={<ContactsOutlinedIcon />}
             onClick={logout}

@@ -7,14 +7,12 @@ const Profile = () => {
   const { loginUser, mail,
           username, setUsername,
           email, setEmail,
-          avatar, setAvatar,
-          decodedToken, setDecodedToken
+          avatar, setAvatar
    } = useContext(AuthenticateContext)
 
-  const [file, setFile] = useState(null)
-   console.log(username)
-   console.log(email)
-   console.log(avatar)
+    const [file, setFile] = useState(null)
+    console.log(JSON.parse(localStorage.getItem('decodedToken')))
+    const decodedToken = JSON.parse(localStorage.getItem('decodedToken'))
 
    const newPicture = (picture) => {
     setFile(picture)
@@ -24,7 +22,6 @@ const Profile = () => {
    const pictureUpload = () => {
     var form = new FormData();
     form.append("image", file)
-    console.log(form)
 
     fetch(`https://api.imgbb.com/1/upload?key=adfd1b1f8175bdf00cac17e79f8ed897`, {
         method: 'POST',
@@ -39,13 +36,11 @@ const Profile = () => {
       return response.json();
       })
       .then(data => {
-        setAvatar(data)
+        setAvatar(data.data.url)
       })
       .catch(error => {
         console.error('Network error:', error);
       })
-      
-      console.log("You pressed the picture!")
     }
    
 
@@ -53,20 +48,29 @@ const Profile = () => {
      setUsername(loginUser.current.value)
      setEmail(mail.current.value)
 
+/*      const data = {
+      userId: decodedToken.id,
+      updatedData: {
+              username: username,
+              email: email,
+              avatar: avatar,
+      }
+    }; */
+
      fetch('https://chatify-api.up.railway.app/user', {
       method: 'PUT',
       headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, 
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`, 
       },
       body: JSON.stringify({
-          "userId": decodedToken.id,
-          "updatedData": {
-              "username": username,
-              "email": email,
-              "avatar": avatar,
-          }
-      })
+        "userId": decodedToken.id,
+        "updatedData": {
+            "username": username,
+            "email": email,
+            "avatar": avatar
+        }
+    })
   })
   .then(response => {
       if (!response.ok) {
@@ -76,12 +80,6 @@ const Profile = () => {
   })
   .then(data => {
       console.log("Successfully updated your profile" + JSON.stringify(data));
-      setDecodedToken(prev => ({
-          ...prev,
-          user: username,
-          email: email,
-          avatar: avatar,
-      }));
       localStorage.setItem('decodedToken', JSON.stringify({
           ...decodedToken,
           user: username,
@@ -99,10 +97,10 @@ const Profile = () => {
     return (
         <FormControl>
           <FormLabel>Change your settings</FormLabel>
-          <TextField inputRef={loginUser} label={username} />
-          <TextField inputRef={mail} label={email} />
-          <Avatar alt="Profile picture" src={avatar} sx={{ width: 56, height: 56 }} onClick={pictureUpload} />
-          <MuiFileInput value={file} onChange={newPicture} />
+          <TextField inputRef={loginUser} label={decodedToken.user} />
+          <TextField inputRef={mail} label={decodedToken.email} />
+          <Avatar alt="Profile picture" src={decodedToken.avatar} sx={{ width: 56, height: 56 }} onClick={pictureUpload} />
+          <MuiFileInput size="small" inputProps={{ accept:'.png, .jpeg, .jpg' }} value={file} onChange={newPicture} />
           <Button type="submit" onClick={handleProfile}>Submit</Button>
         </FormControl>
       );

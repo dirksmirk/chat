@@ -31,9 +31,9 @@ const AuthContextProvider = (props) => {
 
     useEffect(() => {
       if (decodedToken) {
-        setUsername(decodedToken.user)
-        setEmail(decodedToken.email)
-        setAvatar(decodedToken.avatar)
+        localStorage.setItem('username', decodedToken.user)
+        localStorage.setItem('email', decodedToken.email)
+        localStorage.setItem('avatar', decodedToken.avatar)
       }
     }, [decodedToken])
   
@@ -69,9 +69,8 @@ const AuthContextProvider = (props) => {
       localStorage.setItem('token', genToken.token);
       const decodedToken = JSON.parse(atob(genToken.token.split('.')[1]));
       setDecodedToken(decodedToken);
-      localStorage.setItem('decodedToken', decodedToken);
-
-      setAuth(true);
+      localStorage.setItem('decodedToken', JSON.stringify(decodedToken));
+      localStorage.setItem('auth', auth)
     } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
@@ -80,7 +79,6 @@ const AuthContextProvider = (props) => {
 
     const logout = () => {
       localStorage.clear();
-      setAuth(false);
       logoutNavigate('/')
     }
 

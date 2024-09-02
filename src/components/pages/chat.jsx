@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { AuthenticateContext } from "../../Context";
 
 const Chat = () => {
-    const [localStorageValue, setlocalStorageValue] = useState('');
     const [users, setUsers] = useState('')
 
     console.log('JWT Token:', localStorage.getItem('token'));

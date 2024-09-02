@@ -3,9 +3,8 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { AuthenticateContext } from "../Context";
 
 const ProtectedRoutes = () => {
-    const { auth } = useContext(AuthenticateContext);
 
-    return auth ? (
+    return localStorage.getItem('auth') ? (
         <Outlet />
     ) : (
         <Navigate to="/" replace state={{ protectedRoutes: true }} />

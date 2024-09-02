@@ -5,16 +5,16 @@ import { AuthenticateContext } from "../../Context";
 
 const LogIn = () => {
     const { handleLogin,
-      loginUser, password,
-      auth } = useContext(AuthenticateContext)
+      loginUser, password } = useContext(AuthenticateContext)
 
       const Navigate = useNavigate();
+      const authenticated = localStorage.getItem('auth');
 
       useEffect(() => {
-        if(auth) {
+        if(authenticated) {
             Navigate('/chat')
         }
-      }, [auth, Navigate])
+      }, [authenticated, Navigate])
       
 
     return (

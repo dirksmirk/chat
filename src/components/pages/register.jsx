@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FormControl, FormLabel, Button, TextField } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
@@ -8,6 +8,13 @@ const Register = () => {
   // Refs to store input values
 
   const Navigate = useNavigate();
+  const authenticated = localStorage.getItem('auth');
+
+  useEffect(() => {
+        if(authenticated) {
+            Navigate('/chat')
+        }
+  }, [authenticated, Navigate])
   
   async function handleSubmit(e) {
     e.preventDefault();
