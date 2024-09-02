@@ -1,11 +1,25 @@
-import { TextField, List, ListItem, ListItemText, Button, Grid,  } from "@mui/material";
+import { TextField, List, ListItem, ListItemText, ListItemButton, ListItemIcon, Collapse, Button, Grid,  } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
+/* import { ExpandLess, ExpandMore, InboxIcon } from "@mui/icons-material";
+ */
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+
 
 const Chat = () => {
     const inputUserId = useRef();
+    const inputText = useRef();
+    const searchQuery = useRef();
+    const [input, setInput] = useState();
     const [users, setUsers] = useState([])
     const [guid, setGuid] = useState('');
     const [inviteResponse, setInviteResponse] = useState(false);
+    const [open, setOpen] = useState(true);
+
+    const handleClick = () => {
+        setOpen(!open);
+    };
 
     const getAllUsers = () => {
             fetch('https://chatify-api.up.railway.app/users', {
@@ -30,6 +44,15 @@ const Chat = () => {
             });
     }
 
+    const search = () => {
+        const inputValue = searchQuery.current.value.trim();
+        setInput(inputValue)
+    };
+
+    const filteredUsers = input
+        ? users.filter(user => user.username && user.username.toLowerCase().includes(input.toLowerCase()))
+        : users.filter(user => user);
+
     useEffect(() => {
         if (users) {
             // See when users change
@@ -52,7 +75,6 @@ const Chat = () => {
             alert('could not invite.')
             return;
         }
-        
         fetch(`https://chatify-api.up.railway.app/invite/${inputUserId}`, {
             method: 'POST',
             headers: {
@@ -82,7 +104,6 @@ const Chat = () => {
     };
 
     const sendMessage = async () => {
-
         try {
             const response = await fetch('', {
                 method: 'POST',
@@ -91,8 +112,8 @@ const Chat = () => {
                     'Authorization': `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
-/*                     "text": "Hello, world!",
-                    "conversationId": "550e8400-e29b-41d4-a716-446655440000" */
+                    "text": inputText,
+                    "conversationId": guid
                 })
             })
             const data = await response.json();
@@ -113,7 +134,48 @@ const Chat = () => {
             <TextField label='chat here' />
             </Grid>
             <Grid size={2}>
+            <Button onClick={sendMessage}>Send your message!</Button>
+            </Grid>
+            <Grid size={2}>
             <Button onClick={getAllUsers}>Get all users!</Button>
+            </Grid>
+            <Grid size={2}>
+            <TextField 
+            label="search for user"
+            variant="outlined"
+            fullWidth
+            inputRef={searchQuery}
+            sx={{ mb: 2 }}
+            />
+            </Grid>
+            <Grid size={2}>
+            <Button onClick={search}>Search for user!</Button>
+            </Grid>
+            <Grid size={2}>
+                <List sx={{overflow: 'auto', maxHeight: 300,}}>
+                    <ListItemButton onClick={handleClick}>
+                        <ListItemIcon>
+                            <InboxIcon />
+                        </ListItemIcon>
+                    <ListItemText primary="Users" />
+                        {open ? <ExpandLess /> : <ExpandMore />}
+                    </ListItemButton>
+                    <Collapse in={open} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {filteredUsers.length > 0 ? (
+                            filteredUsers.map(user => (
+                            <ListItemButton key={user.userId} sx={{ pl: 4 }}>
+                                <ListItemText primary={user.username} secondary={user.userId} />
+                            </ListItemButton>
+                    ))
+                ): (
+                    <ListItem>
+                        <ListItemText primary="Sorry we couldnt find any users" />
+                    </ListItem>
+                )}
+                </List>
+                    </Collapse>
+                </List>
             </Grid>
             <Grid size={2}>
             <Button onClick={generateGuid}>Generate guid!</Button>
