@@ -1,4 +1,4 @@
-import { TextField, List, ListItem, ListItemText, ListItemButton, ListItemIcon, Collapse, Button, Grid,  } from "@mui/material";
+import { TextField, List, ListItem, ListItemText, ListItemButton, ListItemIcon, Collapse, Button, Grid, Box,  } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
 /* import { ExpandLess, ExpandMore, InboxIcon } from "@mui/icons-material";
  */
@@ -6,6 +6,9 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 
+import { getAllUsers } from "./Chat/GetAllUsers";
+import { generateGuid } from "./Chat/GenerateGuid";
+import { inviteUser } from "./Chat/InviteUsers";
 
 const Chat = () => {
     const inputUserId = useRef();
@@ -14,35 +17,12 @@ const Chat = () => {
     const [input, setInput] = useState();
     const [users, setUsers] = useState([])
     const [guid, setGuid] = useState('');
-    const [inviteResponse, setInviteResponse] = useState(false);
-    const [open, setOpen] = useState(true);
+/*     const [inviteResponse, setInviteResponse] = useState(false);
+ */    const [open, setOpen] = useState(true);
 
     const handleClick = () => {
         setOpen(!open);
     };
-
-    const getAllUsers = () => {
-            fetch('https://chatify-api.up.railway.app/users', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setUsers(data);
-                /* console.log('Fetched users:', data); */
-            })
-            .catch(error => {
-                console.error('Error fetching users:', error);
-            });
-    }
 
     const search = () => {
         const inputValue = searchQuery.current.value.trim();
@@ -59,57 +39,16 @@ const Chat = () => {
             console.log('users:', users);
         }
     }, [users])
-
-    const generateGuid = () => {
-        const newGuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => 
-            (c === 'x' ? Math.floor(Math.random() * 16) : (Math.floor(Math.random() * 4) + 8)).toString(16)
-        );
-        setGuid(newGuid);
-        console.log("GuID has been generated!")
-    };
-
-    const inviteUser = (userId) => {
-        if (!guid) {
-            console.error('generating guid!');
-            generateGuid();
-        } if (!userId) {
-            console.error('A userID is required ')
+    useEffect(() => {
+        if (guid) {
+            // See when users change
+            console.log('new GuID:', guid);
         }
-        fetch(`https://chatify-api.up.railway.app/invite/${userId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem("token")}`
-            },
-            body: JSON.stringify({
-                conversationId: guid,
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                console.error('Problem with inviting user');
-            }
-            return response.json();
-        })
-        .then((data) => {
-            setTimeout(() => {
-                setInviteResponse(true);
-            }, 3000);
-            console.log("You invited a user!")
-            console.log(data)
-        })
-        .catch(error => {
-            console.error('There was a problem with your fetch operation:', error);
-        })
-        .finally(() => {
-            generateGuid();
-            console.info("A new guid has been created after inviting a user!")
-        })
-    };
+    }, [guid])
 
     const handleInviteButtonClick = () => {
         const userId = inputUserId.current.value;
-        inviteUser(userId);
+        inviteUser(userId, guid, setGuid);
     };
 
     const sendMessage = async () => {
@@ -121,8 +60,8 @@ const Chat = () => {
                     'Authorization': `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify({
-                    "text": inputText,
-                    "conversationId": guid
+                    "text": inputText.current.value, /* We get the message text from the input field */
+                    "conversationId": "test"/* get conversation ID from conversation fetch request */
                 })
             })
             const data = await response.json();
@@ -146,7 +85,7 @@ const Chat = () => {
             <Button onClick={sendMessage}>Send your message!</Button>
             </Grid>
             <Grid size={2}>
-            <Button onClick={getAllUsers}>Get all users!</Button>
+            <Button onClick={() => getAllUsers(setUsers)}>Get all users!</Button>
             </Grid>
             <Grid size={2}>
             <TextField 
@@ -162,18 +101,20 @@ const Chat = () => {
             </Grid>
             <Grid size={2}>
                 <List sx={{overflow: 'auto', maxHeight: 300,}}>
-                    <ListItemButton onClick={handleClick}>
-                        <ListItemIcon>
-                            <InboxIcon />
-                        </ListItemIcon>
-                    <ListItemText primary="Users" />
-                        {open ? <ExpandLess /> : <ExpandMore />}
-                    </ListItemButton>
+                    <Box sx={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'white' }} >
+                        <ListItemButton position="sticky" onClick={handleClick}>
+                            <ListItemIcon>
+                                <InboxIcon />
+                            </ListItemIcon>
+                        <ListItemText primary="Users" />
+                            {open ? <ExpandLess /> : <ExpandMore />}
+                        </ListItemButton>
+                    </Box>
                     <Collapse in={open} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                         {filteredUsers.length > 0 ? (
                             filteredUsers.map(user => (
-                            <ListItemButton key={user.userId} sx={{ pl: 4 }} onClick={() => inviteUser(user.userId)}>
+                            <ListItemButton key={user.userId} sx={{ pl: 4 }} onClick={() => inviteUser(user.userId, guid, setGuid)}>
                                 <ListItemText primary={user.username} secondary={user.userId} />
                             </ListItemButton>
                     ))
@@ -187,7 +128,7 @@ const Chat = () => {
                 </List>
             </Grid>
             <Grid size={2}>
-            <Button onClick={generateGuid}>Generate guid!</Button>
+            <Button onClick={() => setGuid(generateGuid)}>Generate guid!</Button>
             </Grid>
             <Grid size={2}>
             <TextField label='enter userID' inputRef={inputUserId} />
