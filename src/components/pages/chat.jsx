@@ -17,6 +17,7 @@ const Chat = () => {
     const [input, setInput] = useState();
     const [users, setUsers] = useState([])
     const [guid, setGuid] = useState('');
+    const [conversations, setConversations] = useState([]);
 /*     const [inviteResponse, setInviteResponse] = useState(false);
  */    const [open, setOpen] = useState(true);
 
@@ -39,17 +40,42 @@ const Chat = () => {
             console.log('users:', users);
         }
     }, [users])
-    useEffect(() => {
-        if (guid) {
-            // See when users change
-            console.log('new GuID:', guid);
-        }
-    }, [guid])
 
     const handleInviteButtonClick = () => {
         const userId = inputUserId.current.value;
         inviteUser(userId, guid, setGuid);
     };
+
+    useEffect(() => {
+        const newGuid = generateGuid();  // Generate new GUID
+        setGuid(newGuid);  // Set the GUID in state
+        console.log('Generated GUID on render:', newGuid);
+    }, []);
+
+    useEffect(() => {
+        if (guid) {
+            fetch(`https://chatify-api.up.railway.app/conversations`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch conversations');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setConversations(data);
+                console.log("Fetched conversations: ", data);
+            })
+            .catch(error => {
+                console.error('Error fetching conversations:', error);
+            });
+        }
+    }, [guid]);
 
     const sendMessage = async () => {
         try {
