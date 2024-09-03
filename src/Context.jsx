@@ -12,9 +12,7 @@ const AuthContextProvider = (props) => {
     const [csrf, setCsrf] = useState('')
   
     const [decodedToken, setDecodedToken] = useState('')
-
-    const [username, setUsername] = useState('')
-    const [email, setEmail] = useState('')
+    
     const [avatar, setAvatar] = useState('')
 
     const logoutNavigate = useNavigate();
@@ -76,8 +74,6 @@ const AuthContextProvider = (props) => {
         <AuthenticateContext.Provider value={{ 
           handleLogin, error, 
           loginUser, password, mail,
-          username, setUsername,
-          email, setEmail,
           avatar, setAvatar,
           logout, csrf  }}>
             {props.children}

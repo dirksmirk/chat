@@ -66,16 +66,16 @@ const Chat = () => {
         );
         setGuid(newGuid);
         console.log("GuID has been generated!")
-        console.log(guid)
     };
 
-    const inviteUser = () => {
+    const inviteUser = (userId) => {
         if (!guid) {
-            console.error('GUID is not generated or is empty');
-            alert('could not invite.')
-            return;
+            console.error('generating guid!');
+            generateGuid();
+        } if (!userId) {
+            console.error('A userID is required ')
         }
-        fetch(`https://chatify-api.up.railway.app/invite/${inputUserId}`, {
+        fetch(`https://chatify-api.up.railway.app/invite/${userId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -101,6 +101,15 @@ const Chat = () => {
         .catch(error => {
             console.error('There was a problem with your fetch operation:', error);
         })
+        .finally(() => {
+            generateGuid();
+            console.info("A new guid has been created after inviting a user!")
+        })
+    };
+
+    const handleInviteButtonClick = () => {
+        const userId = inputUserId.current.value;
+        inviteUser(userId);
     };
 
     const sendMessage = async () => {
@@ -164,7 +173,7 @@ const Chat = () => {
                     <List component="div" disablePadding>
                         {filteredUsers.length > 0 ? (
                             filteredUsers.map(user => (
-                            <ListItemButton key={user.userId} sx={{ pl: 4 }}>
+                            <ListItemButton key={user.userId} sx={{ pl: 4 }} onClick={() => inviteUser(user.userId)}>
                                 <ListItemText primary={user.username} secondary={user.userId} />
                             </ListItemButton>
                     ))
@@ -182,7 +191,7 @@ const Chat = () => {
             </Grid>
             <Grid size={2}>
             <TextField label='enter userID' inputRef={inputUserId} />
-            <Button onClick={inviteUser}>Invite User!</Button>
+            <Button onClick={handleInviteButtonClick}>Invite User!</Button>
             </Grid>
         </Grid>
     )

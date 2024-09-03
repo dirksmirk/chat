@@ -13,10 +13,6 @@ const Profile = () => {
   const {
     loginUser,
     mail,
-    username,
-    setUsername,
-    email,
-    setEmail,
     avatar,
     setAvatar,
   } = useContext(AuthenticateContext);
@@ -56,9 +52,10 @@ const Profile = () => {
       });
   };
 
+
   const handleProfile = () => {
-    setUsername(loginUser.current.value);
-    setEmail(mail.current.value);
+    const updatedUsername = loginUser.current.value;
+    const updatedEmail = mail.current.value;
 
     fetch("https://chatify-api.up.railway.app/user", {
       method: "PUT",
@@ -69,9 +66,9 @@ const Profile = () => {
       body: JSON.stringify({
         userId: decodedToken.id,
         updatedData: {
-          username: username,
-          email: email,
-          avatar: avatar,
+          username: updatedUsername,
+          email: updatedEmail,
+          avatar: avatar
         },
       }),
     })
@@ -83,19 +80,23 @@ const Profile = () => {
       })
       .then((data) => {
         console.log("Successfully updated your profile" + JSON.stringify(data));
+        console.log(data)
         localStorage.setItem(
           "decodedToken",
           JSON.stringify({
             ...decodedToken,
-            user: username,
-            email: email,
+            user: updatedUsername,
+            email: updatedEmail,
             avatar: avatar,
           })
         );
       })
       .catch((error) => {
         console.error("Error connecting to server: ", error);
-      });
+      })
+      .finally(() => {
+        console.log(localStorage.getItem("decodedToken"))
+      })
   };
 
   return (
