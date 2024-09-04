@@ -43,10 +43,12 @@ const Profile = () => {
   }, [])
 
   useEffect(() => {
-    setUsername(decodedToken.user);
-    setEmail(decodedToken.email);
-    setAvatar(decodedToken.avatar);
-  }, [])
+    if (decodedToken) {
+      setUsername(decodedToken.user);
+      setEmail(decodedToken.email);
+      setAvatar(decodedToken.avatar);
+    }
+  }, [decodedToken])
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -96,13 +98,15 @@ const Profile = () => {
       })
       .then((data) => {
         setAvatar(data.data.url);
+        handlePictureClose();
       })
       .catch((error) => {
         console.error("Network error: ", error);
       });
   };
 
-
+  //TODO: MAKE SURE THAT THE DATA SENT IN IS NEVER EMPTY
+  //THE USER CAN LEAVE THE FIELDS EMPTY, BUT IF THEY'RE EMPTY THEY WILL POPULATE W CURRENT INFORMATION
   const handleProfile = () => {
     setUsername(loginUser.current.value)
     setEmail(mail.current.value)
@@ -184,8 +188,8 @@ const Profile = () => {
     <Grid container spacing={2}>
     <Grid item>
       <Typography>Change your settings</Typography>
-      <TextField inputRef={loginUser} label={decodedToken.user} />
-      <TextField inputRef={mail} label={decodedToken.email} />
+      <TextField inputRef={loginUser} label={username} />
+      <TextField inputRef={mail} label={email} />
       <Button type="submit" onClick={handleProfile}>
         Submit
       </Button>
@@ -193,7 +197,7 @@ const Profile = () => {
     <Grid item>
     <Avatar
         alt="Profile picture"
-        src={decodedToken.avatar}
+        src={avatar}
         sx={{ width: 56, height: 56 }}
         onClick={handlePictureOpen}
         />
