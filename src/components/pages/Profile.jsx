@@ -4,9 +4,18 @@ import {
   Button,
   TextField,
   Avatar,
+  Container,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Typography,
+  styled
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import { MuiFileInput } from "mui-file-input";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { AuthenticateContext } from "../../Context";
 
 const Profile = () => {
@@ -17,8 +26,26 @@ const Profile = () => {
     setAvatar,
   } = useContext(AuthenticateContext);
 
+  const deleteUser = useRef();
   const [file, setFile] = useState(null);
+  const [open, setOpen] = useState(false)
   const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
+
+  const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+    '& .MuiDialogContent-root': {
+      padding: theme.spacing(2),
+    },
+    '& .MuiDialogActions-root': {
+      padding: theme.spacing(1),
+    },
+  }));
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const newPicture = (picture) => {
     setFile(picture);
@@ -99,7 +126,35 @@ const Profile = () => {
       })
   };
 
+  const DeleteProfile = () => {
+    if (decodedToken.user === deleteUser.current.value) {
+      fetch(`https://chatify-api.up.railway.app/users/${decodedToken.userId}`,
+    {
+      method: 'DELETE',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+    })
+    .then((response) => {
+      if (!response.ok) {
+        console.error(`Something went wrong in deleting user ${decodedToken.userId}:`, response)
+      }
+      return response.json();
+    })
+    .then((data) => {
+
+    })
+    .catch((error) => {
+      console.error("There was an error from the server when trying delete the user: ", error )
+    })
+  } else {
+    console.log("Incorrect username!")
+  }
+  }
+
   return (
+    <Container>
     <FormControl>
       <FormLabel>Change your settings</FormLabel>
       <TextField inputRef={loginUser} label={decodedToken.user} />
@@ -109,17 +164,59 @@ const Profile = () => {
         src={decodedToken.avatar}
         sx={{ width: 56, height: 56 }}
         onClick={pictureUpload}
-      />
+        />
       <MuiFileInput
         size="small"
         inputProps={{ accept: ".png, .jpeg, .jpg" }}
         value={file}
         onChange={newPicture}
-      />
+        />
       <Button type="submit" onClick={handleProfile}>
         Submit
       </Button>
     </FormControl>
+    <Button variant="outlined" onClick={handleClickOpen}>
+      Delete my account
+    </Button>
+    <BootstrapDialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          Are you sure you want to delete your account?
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={(theme) => ({
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500],
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
+        <DialogContent dividers>
+          <Typography gutterBottom>
+            Deleting your account will remove all of your conversations and chat messages, as well as all your account information.
+          </Typography>
+          <Typography gutterBottom>
+            This action can not be reversed in any way.
+          </Typography>
+          <Typography gutterBottom>
+            To delete your account you need to enter your username in the box below
+          </Typography>
+          <TextField inputRef={deleteUser} fullWidth />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" color="error" autoFocus onClick={DeleteProfile}>
+            I want to delete my account
+          </Button>
+        </DialogActions>
+      </BootstrapDialog>
+    </Container>
   );
 };
 
