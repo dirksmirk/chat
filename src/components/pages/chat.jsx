@@ -48,13 +48,13 @@ const Chat = () => {
     setDecodedToken(JSON.parse(localStorage.getItem("decodedToken")))
 }, [])
 
-  // setting our search value into our input state
+  //Sätter vad vi sökt från våran referens till våran input state
   const search = () => {
     const inputValue = searchQuery.current.value.trim();
     setInput(inputValue);
   };
 
-  // filters our users based on our search input
+  //Filtrerar användarlistan baserat på vad vi sökt
   const filteredUsers = input
     ? users.filter(
         (user) =>
@@ -66,42 +66,27 @@ const Chat = () => {
     const getUserInfo = (userId) => {
       return filteredUsers.find((user) => user.userId === userId);
     };
-
-  useEffect(() => {
-    if (users) {
-      // See when users change
-      console.log("users:", users);
-      console.log("token:", decodedToken)
-    }
-  }, [users]);
-
-  useEffect(() => {
-    if (messages) {
-      // See when messages change
-      console.log("messages:", messages);
-    }
-  }, [messages]);
-
-  //Get all users on load
+  
+  //Hämta alla användare när vi renderar objektet
   useEffect(() => {
     getAllUsers(setUsers);
   }, []);
 
-  //Generate guid on load
+  //Skapa guid när vi rendererar objektet
   useEffect(() => {
     const newGuid = generateGuid(); // Generate new GUID
     setGuid(newGuid); // Set the GUID in state
     console.log("Generated GUID on render:", newGuid);
   }, []);
 
-  //If there is a guid OR a newMessage, fetch what conversations we have
   useEffect(() => {
-    if (guid || newMessage) {
-      fetch(`https://chatify-api.up.railway.app/conversations`, {
+    //Våran function inom useEffecten för att hämta alla våran konversationer
+    const fetchConversations = () => {
+      return fetch(`https://chatify-api.up.railway.app/conversations`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          'Authorization': `Bearer ${localStorage.getItem("token")}`,
         },
       })
         .then((response) => {
@@ -109,12 +94,40 @@ const Chat = () => {
             throw new Error("Failed to fetch conversations");
           }
           return response.json();
+        });
+    };
+    //våran andra function inom useEffecten för att hämta alla våra konversationer vi blivit inbjudna till
+    const fetchInvitedConversations = () => {
+      return fetch(`https://chatify-api.up.railway.app/users/${decodedToken.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("token")}`
+        }
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch user invites");
+          }
+          return response.json();
         })
         .then((data) => {
-          setConversations(data);
-          console.log("Fetched conversations: ", data);
-          // once we've fetched our conversations, we want to go through each conversation and map out our messages
-          data.forEach((conversation) => {
+          const invites = JSON.parse(data[0].invite);
+          return invites.map(invite => invite.conversationId);
+        });
+    };
+    //Till sist behöver vi kombinera alla konversationer. Våran Promise.all kör igång båda fetch requests samtidigt och inväntar att båda blir klara
+    //Därefter så har vi två arrays av koversationIds, som vi slänger ihop till en array. Denna array går sedan igenom varje konversation och hämtar alla meddelanden för den konversationen
+    //Detta kickar igång när man laddar in sidan och guid genereras, när man skickar en invita och guid genereras på nytt samt när man skickar ett nytt meddelande
+    if (guid || newMessage) {
+      Promise.all([fetchConversations(), fetchInvitedConversations()])
+        .then(([fetchedConversations, invitedConversations]) => {
+          const combinedConversations = [...fetchedConversations, ...invitedConversations];
+          setConversations(combinedConversations);
+          console.log("Combined conversations: ", combinedConversations);
+  
+          // Fetch messages for each conversation
+          combinedConversations.forEach((conversation) => {
             fetchMessages(conversation);
           });
         })
@@ -124,8 +137,7 @@ const Chat = () => {
     }
   }, [guid, newMessage]);
 
-  //Our function to fetch the messages for our conversations. This runs through the fetch conversation function
-  //And it runs for every conversation that we get, getting the messages for that conversationId
+  //Våran funktion för att hämta alla våra meddelanden ur våra konversationer. Körs varje gång vi hämtar konversationerna
   const fetchMessages = (conversationId) => {
     fetch(
       `https://chatify-api.up.railway.app/messages?conversationId=${conversationId}`,
@@ -144,8 +156,8 @@ const Chat = () => {
         return response.json();
       })
       .then((data) => {
-        //Here we get the messages for the conversationId we're looking at and store that information in an array, under the conversationId
-        setMessages((prevMessages) => ({
+          //När vi får våra meddelanden och kopplad information så sparar vi det i en array under våran message state, som är kopplade under deras conversationId
+       setMessages((prevMessages) => ({
           ...prevMessages,
           [conversationId]: data, // Store messages information by conversationId
         }));
@@ -157,12 +169,12 @@ const Chat = () => {
         );
       });
   };
-
+    //Funktion som hanterar att när man klickar på en tab, byter man till den
   const handleTabChange = (event, newValue) => {
     setSelectedConversation(newValue);
   };
 
-  //Our function to send messages based on conversationId. This is connected to our tabs
+  //Våran funktion för att skicka meddelanden. baseras på conversationId, som fås baserat på vilken tab man är inne på
   const sendMessage = async (sendId) => {
     console.log(inputText.current.value);
     try {
@@ -175,10 +187,8 @@ const Chat = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
-            text: inputText.current
-              .value /* We get the message text from the input field */,
-            conversationId:
-              sendId /* get conversation ID from conversation fetch request */,
+            text: inputText.current.value /* We get the message text from the input field */,
+            conversationId: sendId /* get conversation ID from the corresponding tab */,
           }),
         }
       );
@@ -253,7 +263,7 @@ const Chat = () => {
                       >
                         <ListItemText
                           primary={message.text}
-                          secondary={`Sent by ${isLoggedInUser ? decodedToken.username : userInfo?.username || 'User ' + message.userId} on ${new Date(message.createdAt).toLocaleString()}`}
+                          secondary={`Sent by ${isLoggedInUser ? decodedToken.user : userInfo?.username || 'User ' + message.userId} on ${new Date(message.createdAt).toLocaleString()}`}
                         />
                       </Box>
                       <ListItemIcon>

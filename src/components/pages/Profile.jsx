@@ -151,7 +151,7 @@ const Profile = () => {
 
   const DeleteProfile = () => {
     if (decodedToken.user === deleteUser.current.value) {
-      fetch(`https://chatify-api.up.railway.app/users/${decodedToken.userId}`,
+      fetch(`https://chatify-api.up.railway.app/users/${decodedToken.id}`,
     {
       method: 'DELETE',
       headers: {
@@ -161,7 +161,7 @@ const Profile = () => {
     })
     .then((response) => {
       if (!response.ok) {
-        console.error(`Something went wrong in deleting user ${decodedToken.userId}:`, response)
+        console.error(`Something went wrong in deleting user ${decodedToken.id}:`, response)
       }
       return response.json();
     })
