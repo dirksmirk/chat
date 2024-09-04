@@ -1,25 +1,27 @@
 import { useEffect, useContext} from "react";
 import { useNavigate } from "react-router";
-import { FormControl, FormLabel, Button, TextField } from "@mui/material";
+import { FormControl, FormLabel, Button, TextField, Typography } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
 
 const LogIn = () => {
     const { handleLogin,
-      loginUser, password } = useContext(AuthenticateContext)
+      loginUser, password, auth} = useContext(AuthenticateContext)
 
       const Navigate = useNavigate();
-      const authenticated = localStorage.getItem('auth');
 
       useEffect(() => {
-        if(authenticated) {
+        if(auth) {
             Navigate('/chat')
         }
-      }, [authenticated, Navigate])
+      }, [auth, Navigate])
       
 
     return (
         <FormControl>
-          <FormLabel>Login!</FormLabel>
+          <FormLabel>Welcome to Dispatch</FormLabel>
+          <Typography>
+            Use the below fields to login
+          </Typography>
           <TextField required inputRef={loginUser} label="Username" />
           <TextField required inputRef={password} label="Password" />          
           <Button type="submit" onClick={handleLogin}>Submit</Button>

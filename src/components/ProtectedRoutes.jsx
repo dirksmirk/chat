@@ -1,6 +1,5 @@
-import { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { AuthenticateContext } from "../Context";
+
 
 const ProtectedRoutes = () => {
 

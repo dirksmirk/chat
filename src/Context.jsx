@@ -9,14 +9,17 @@ const AuthContextProvider = (props) => {
     const password = useRef();
     const mail = useRef();
     const [error, setError] = useState('');
-    const [csrf, setCsrf] = useState('')
-  
+    const [csrf, setCsrf] = useState('');
+    const [avatar, setAvatar] = useState('');
+    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [decodedToken, setDecodedToken] = useState('')
-    
-    const [avatar, setAvatar] = useState('')
+    const [auth, setAuth] = useState('');
 
     const logoutNavigate = useNavigate();
-  
+
+/*     const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
+ */  
     useEffect(() => {
       fetch('https://chatify-api.up.railway.app/csrf', {
         method: 'PATCH',
@@ -24,7 +27,19 @@ const AuthContextProvider = (props) => {
       .then(res => res.json())
       .then(data => setCsrf(data.csrfToken))
   }, []);
+
+  useEffect(() => {
+    if (auth) {
+      localStorage.setItem('auth', true);
+    }
+  }, [auth])
   
+  useEffect(() => {
+    if (auth) {
+      setDecodedToken(JSON.parse(localStorage.getItem("decodedToken")))
+    }
+  }, [auth])
+
     async function handleLogin(e) {
       e.preventDefault(e);
       
@@ -55,10 +70,10 @@ const AuthContextProvider = (props) => {
       // OR just change so that token saves to a cookie that expires after a certain time
       const genToken = await response.json();
       localStorage.setItem('token', genToken.token);
-      const decodedToken = JSON.parse(atob(genToken.token.split('.')[1]));
-      setDecodedToken(decodedToken);
-      localStorage.setItem('decodedToken', JSON.stringify(decodedToken));
-      localStorage.setItem('auth', true)
+      const decToken = JSON.parse(atob(genToken.token.split('.')[1]));
+      localStorage.setItem('decodedToken', JSON.stringify(decToken));
+      setAuth(true)
+      console.log("user was logged in!")
     } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
@@ -67,15 +82,19 @@ const AuthContextProvider = (props) => {
 
     const logout = () => {
       localStorage.clear();
+      setAuth(false)
       logoutNavigate('/')
     }
 
     return (
         <AuthenticateContext.Provider value={{ 
-          handleLogin, error, 
+          handleLogin, error, auth,
           loginUser, password, mail,
           avatar, setAvatar,
-          logout, csrf  }}>
+          logout, csrf,
+          decodedToken, setDecodedToken,
+          email, setEmail,
+          username, setUsername}}>
             {props.children}
         </AuthenticateContext.Provider>
     );

@@ -1,6 +1,4 @@
 import {
-  FormControl,
-  FormLabel,
   Button,
   TextField,
   Avatar,
@@ -11,11 +9,12 @@ import {
   DialogActions,
   IconButton,
   Typography,
-  styled
+  styled,
+  Grid
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { MuiFileInput } from "mui-file-input";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { AuthenticateContext } from "../../Context";
 
 const Profile = () => {
@@ -24,12 +23,30 @@ const Profile = () => {
     mail,
     avatar,
     setAvatar,
+    logout,
+    decodedToken,
+    setDecodedToken,
+    email,
+    setEmail,
+    username,
+    setUsername
   } = useContext(AuthenticateContext);
 
   const deleteUser = useRef();
   const [file, setFile] = useState(null);
-  const [open, setOpen] = useState(false)
-  const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [pictureOpen, setPictureOpen] = useState(false);
+  const [userDeleted, setUserDeleted] = useState(false);
+
+  useEffect(() => {
+      setDecodedToken(JSON.parse(localStorage.getItem("decodedToken")))
+  }, [])
+
+  useEffect(() => {
+    setUsername(decodedToken.user);
+    setEmail(decodedToken.email);
+    setAvatar(decodedToken.avatar);
+  }, [])
 
   const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -40,11 +57,17 @@ const Profile = () => {
     },
   }));
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  const handleDeleteClickOpen = () => {
+    setDeleteOpen(true);
   };
-  const handleClose = () => {
-    setOpen(false);
+  const handleDeleteClose = () => {
+    setDeleteOpen(false);
+  };
+  const handlePictureOpen = () => {
+    setPictureOpen(true);
+  };
+  const handlePictureClose = () => {
+    setPictureOpen(false);
   };
 
   const newPicture = (picture) => {
@@ -81,8 +104,8 @@ const Profile = () => {
 
 
   const handleProfile = () => {
-    const updatedUsername = loginUser.current.value;
-    const updatedEmail = mail.current.value;
+    setUsername(loginUser.current.value)
+    setEmail(mail.current.value)
 
     fetch("https://chatify-api.up.railway.app/user", {
       method: "PUT",
@@ -93,8 +116,8 @@ const Profile = () => {
       body: JSON.stringify({
         userId: decodedToken.id,
         updatedData: {
-          username: updatedUsername,
-          email: updatedEmail,
+          username: username,
+          email: email,
           avatar: avatar
         },
       }),
@@ -112,8 +135,8 @@ const Profile = () => {
           "decodedToken",
           JSON.stringify({
             ...decodedToken,
-            user: updatedUsername,
-            email: updatedEmail,
+            user: username,
+            email: email,
             avatar: avatar,
           })
         );
@@ -143,63 +166,112 @@ const Profile = () => {
       return response.json();
     })
     .then((data) => {
-
+      console.log(data)
+      setUserDeleted(true)
+      setTimeout(() => {
+        handleDeleteClose();
+        logout();
+      }, 2000);
     })
     .catch((error) => {
       console.error("There was an error from the server when trying delete the user: ", error )
     })
   } else {
     console.log("Incorrect username!")
-  }
-  }
+  }};
 
   return (
-    <Container>
-    <FormControl>
-      <FormLabel>Change your settings</FormLabel>
+    <Grid container spacing={2}>
+    <Grid item>
+      <Typography>Change your settings</Typography>
       <TextField inputRef={loginUser} label={decodedToken.user} />
       <TextField inputRef={mail} label={decodedToken.email} />
-      <Avatar
+      <Button type="submit" onClick={handleProfile}>
+        Submit
+      </Button>
+    </Grid>
+    <Grid item>
+    <Avatar
         alt="Profile picture"
         src={decodedToken.avatar}
         sx={{ width: 56, height: 56 }}
-        onClick={pictureUpload}
+        onClick={handlePictureOpen}
         />
-      <MuiFileInput
+    </Grid>
+      <BootstrapDialog
+        onClose={handlePictureClose}
+        aria-labelledby="customized-dialog-title"
+        open={pictureOpen}
+      >
+        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+          Update your profile picture!
+        </DialogTitle>
+            <IconButton
+            aria-label="close"
+            onClick={handlePictureClose}
+            sx={(theme) => ({
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme.palette.grey[500],
+            })}
+          >
+            <CloseIcon />
+          </IconButton>
+          <DialogContent dividers>
+            <Typography gutterBottom>
+              Upload your new picture here! Press the submit button below when you have selected your picture            
+            </Typography>
+          <MuiFileInput
         size="small"
         inputProps={{ accept: ".png, .jpeg, .jpg" }}
         value={file}
         onChange={newPicture}
         />
-      <Button type="submit" onClick={handleProfile}>
-        Submit
-      </Button>
-    </FormControl>
-    <Button variant="outlined" onClick={handleClickOpen}>
+        </DialogContent>
+            <DialogActions>
+            <Button variant="outlined" autoFocus onClick={pictureUpload}>
+              Submit
+            </Button>
+          </DialogActions>
+      </BootstrapDialog>
+
+    <Grid item>
+    <Button variant="outlined" color="error" onClick={handleDeleteClickOpen}>
       Delete my account
     </Button>
+    </Grid>
     <BootstrapDialog
-        onClose={handleClose}
+        onClose={handleDeleteClose}
         aria-labelledby="customized-dialog-title"
-        open={open}
+        open={deleteOpen}
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
           Are you sure you want to delete your account?
         </DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={(theme) => ({
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: theme.palette.grey[500],
-          })}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogContent dividers>
-          <Typography gutterBottom>
+        { !userDeleted && (
+            <IconButton
+            aria-label="close"
+            onClick={handleDeleteClose}
+            sx={(theme) => ({
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: theme.palette.grey[500],
+            })}
+          >
+            <CloseIcon />
+          </IconButton>
+          )}
+          { userDeleted ? (
+          <DialogContent dividers>
+            <Typography gutterBottom>
+              Your account has now been deleted! You will now be redirected to the home page
+            </Typography>
+            </DialogContent>
+          ) : (
+          <DialogContent dividers>
+            <Typography gutterBottom>
             Deleting your account will remove all of your conversations and chat messages, as well as all your account information.
           </Typography>
           <Typography gutterBottom>
@@ -210,13 +282,16 @@ const Profile = () => {
           </Typography>
           <TextField inputRef={deleteUser} fullWidth />
         </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" color="error" autoFocus onClick={DeleteProfile}>
-            I want to delete my account
-          </Button>
-        </DialogActions>
+          )}
+          { !userDeleted && (
+            <DialogActions>
+            <Button variant="outlined" color="error" autoFocus onClick={DeleteProfile}>
+              I want to delete my account
+            </Button>
+          </DialogActions>
+          )}
       </BootstrapDialog>
-    </Container>
+      </Grid>
   );
 };
 

@@ -11,8 +11,11 @@ import {
   Box,
   Tabs,
   Tab,
+  Typography,
+  Avatar,
 } from "@mui/material";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
+import { AuthenticateContext } from "../../Context";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -22,7 +25,7 @@ import { generateGuid } from "./Chat/GenerateGuid";
 import { inviteUser } from "./Chat/InviteUsers";
 
 const Chat = () => {
-  const inputUserId = useRef();
+  const { decodedToken, setDecodedToken} = useContext(AuthenticateContext)
   const inputText = useRef();
   const searchQuery = useRef();
   const [input, setInput] = useState();
@@ -32,14 +35,18 @@ const Chat = () => {
   const [messages, setMessages] = useState({});
   const [selectedConversation, setSelectedConversation] = useState(0);
   const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false)
   const [inviteResponse, setInviteResponse] = useState(false);
   const [open, setOpen] = useState(true);
+  const [loading, setLoading] = useState(false)
 
   //handle the opening and closing of our user list
   const handleClick = () => {
     setOpen(!open);
   };
+
+  useEffect(() => {
+    setDecodedToken(JSON.parse(localStorage.getItem("decodedToken")))
+}, [])
 
   // setting our search value into our input state
   const search = () => {
@@ -56,23 +63,24 @@ const Chat = () => {
       )
     : users.filter((user) => user);
 
+    const getUserInfo = (userId) => {
+      return filteredUsers.find((user) => user.userId === userId);
+    };
+
   useEffect(() => {
     if (users) {
       // See when users change
       console.log("users:", users);
+      console.log("token:", decodedToken)
     }
   }, [users]);
+
   useEffect(() => {
     if (messages) {
       // See when messages change
       console.log("messages:", messages);
     }
   }, [messages]);
-
-  const handleInviteButtonClick = () => {
-    const userId = inputUserId.current.value;
-    inviteUser(userId, guid, setGuid);
-  };
 
   //Get all users on load
   useEffect(() => {
@@ -197,9 +205,14 @@ const Chat = () => {
           scrollButtons="auto"
           aria-label="conversation tabs"
         >
-          {conversations.map((conversation, index) => (
-            <Tab key={conversation.id} label={`Conversation ${index + 1}`} />
-          ))}
+          {conversations && conversations.length > 0 ? (
+            conversations.map((conversation, index) => (
+              <Tab key={conversation.id} label={`Conversation ${index + 1}`} />
+            ))
+          ) : (
+            <Tab label="No conversatio yet. Invite someone to get started!" />
+          )
+        }
         </Tabs>
         {conversations.map((conversation, index) => (
           <TabPanel
@@ -209,16 +222,52 @@ const Chat = () => {
           >
             <List sx={{ overflow: "auto", height: "75vh" }}>
               {messages[conversation] && messages[conversation].length > 0 ? (
-                messages[conversation].map((message) => (
-                  <ListItem key={message.id}>
-                    <ListItemText
-                      primary={message.text}
-                      secondary={`Sent by User ${message.userId} on ${new Date(
-                        message.createdAt
-                      ).toLocaleString()}`}
-                    />
+                messages[conversation].map((message) => {
+                  const userInfo = getUserInfo(message.userId)
+                  const isLoggedInUser = message.userId === decodedToken.id;
+                  return (
+                  <ListItem 
+                  key={message.id}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: isLoggedInUser ? 'flex-end' : 'flex-start',
+                  }}
+                  >
+                    <ListItemIcon>
+                    {!isLoggedInUser && userInfo && (
+                      <Avatar
+                      alt={userInfo.username}
+                      src={userInfo.avatar}
+                      sx={{ marginRight: 2 }}
+                      />
+                    )}
+                    </ListItemIcon>
+                      <Box
+                        sx={{
+                          maxWidth: '60%',
+                          backgroundColor: isLoggedInUser ? '#DCF8C6' : '#FFFFFF',
+                          borderRadius: '10px',
+                          padding: '10px',
+                          textAlign: isLoggedInUser ? 'right' : 'left',
+                        }}
+                      >
+                        <ListItemText
+                          primary={message.text}
+                          secondary={`Sent by ${isLoggedInUser ? decodedToken.username : userInfo?.username || 'User ' + message.userId} on ${new Date(message.createdAt).toLocaleString()}`}
+                        />
+                      </Box>
+                      <ListItemIcon>
+                      {isLoggedInUser && (
+                        <Avatar
+                          alt={decodedToken.username}
+                          src={decodedToken.avatar}
+                          sx={{ marginLeft: 2 }}
+                        />
+                      )}
+                      </ListItemIcon>
                   </ListItem>
-                ))
+                );
+                })
               ) : (
                 <ListItem>
                   <ListItemText primary="No messages found" />
@@ -263,9 +312,15 @@ const Chat = () => {
                     sx={{ pl: 4 }}
                     onClick={() => inviteUser(user.userId, guid, setGuid)}
                   >
+                    <ListItemIcon>
+                      <Avatar
+                        alt="avatar"
+                        src={user.avatar}
+                      />
+                    </ListItemIcon>
                     <ListItemText
                       primary={user.username}
-                      secondary={user.userId}
+                      secondary={"invite"}
                     />
                   </ListItemButton>
                 ))
@@ -277,6 +332,11 @@ const Chat = () => {
             </List>
           </Collapse>
         </List>
+      </Grid>
+      <Grid size={2} margin={1}>
+        <Typography>
+          Click on the user in the list you want to invite to a conversation!
+        </Typography>
       </Grid>
       <Grid size={2} margin={1}>
         <TextField

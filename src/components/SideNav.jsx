@@ -13,9 +13,10 @@ import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
 function SideNav() {
-  const { logout } = useContext(AuthenticateContext)
+  const { logout, decodedToken } = useContext(AuthenticateContext)
   const [collapsed, setCollapsed] = useState(true);
   const { mode, toggleTheme } = useContext(ThemeContext);
+  const user = decodedToken.user;
 
   return (
     <Sidebar style={{ height: "100vh" }} collapsed={collapsed}>
@@ -26,7 +27,7 @@ function SideNav() {
           style={{ textAlign: "center" }}
         >
           { localStorage.getItem('auth') ? (
-              <h2>Hi user!</h2>
+              <h2>Hi {user}</h2>
           ) : (
              <h2>Navigation</h2>
           )}
