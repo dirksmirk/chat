@@ -23,6 +23,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import { getAllUsers } from "./Chat/GetAllUsers";
 import { generateGuid } from "./Chat/GenerateGuid";
 import { inviteUser } from "./Chat/InviteUsers";
+import DOMPurify from "dompurify";
 
 const Chat = () => {
   const { decodedToken, setDecodedToken} = useContext(AuthenticateContext)
@@ -176,9 +177,10 @@ const Chat = () => {
 
   //Våran funktion för att skicka meddelanden. baseras på conversationId, som fås baserat på vilken tab man är inne på
   const sendMessage = async (sendId) => {
-    console.log(inputText.current.value);
-    try {
-      const response = await fetch(
+    if (inputText.current.value.length > 0) {
+      const cleanMessage = DOMPurify.sanitize(inputText.current.value)
+      try {
+        const response = await fetch(
         "https://chatify-api.up.railway.app/messages",
         {
           method: "POST",
@@ -187,22 +189,26 @@ const Chat = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
-            text: inputText.current.value /* We get the message text from the input field */,
+            text: cleanMessage /* We get the message text from the input field */,
             conversationId: sendId /* get conversation ID from the corresponding tab */,
           }),
         }
       );
       const data = await response.json();
-
+      
       if (response.ok) {
         console.log("message succesfully sent: ", data);
         setNewMessage(data.latestMessage.text);
+        inputText.current.value = "";
       } else {
         console.log("Error sending message:", data);
       }
     } catch (error) {
       console.error("Network error:", error);
     }
+  } else {
+    console.log("the message is empty!")
+  }
   };
 
   return (
