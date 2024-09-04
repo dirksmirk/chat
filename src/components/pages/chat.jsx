@@ -24,15 +24,18 @@ const Chat = () => {
 /*     const [inviteResponse, setInviteResponse] = useState(false);
  */    const [open, setOpen] = useState(true);
 
+    //handle the opening and closing of our user list
     const handleClick = () => {
         setOpen(!open);
     };
 
+    // setting our search value into our input state
     const search = () => {
         const inputValue = searchQuery.current.value.trim();
         setInput(inputValue)
     };
 
+    // filters our users based on our search input
     const filteredUsers = input
         ? users.filter(user => user.username && user.username.toLowerCase().includes(input.toLowerCase()))
         : users.filter(user => user);
@@ -55,12 +58,19 @@ const Chat = () => {
         inviteUser(userId, guid, setGuid);
     };
 
+    //Get all users on load
+    useEffect(() => {
+        getAllUsers(setUsers)
+    }, [])
+
+    //Generate guid on load
     useEffect(() => {
         const newGuid = generateGuid();  // Generate new GUID
         setGuid(newGuid);  // Set the GUID in state
         console.log('Generated GUID on render:', newGuid);
     }, []);
 
+    //If there is a guid OR a newMessage, fetch what conversations we have
     useEffect(() => {
         if (guid || newMessage ) {
             fetch(`https://chatify-api.up.railway.app/conversations`, {
@@ -79,6 +89,7 @@ const Chat = () => {
             .then(data => {
                 setConversations(data);
                 console.log("Fetched conversations: ", data);
+                // once we've fetched our conversations, we want to go through each conversation and map out our messages
                 data.forEach(conversation => {
                     fetchMessages(conversation)
                 });
@@ -89,6 +100,8 @@ const Chat = () => {
         }
     }, [guid, newMessage]);
 
+    //Our function to fetch the messages for our conversations. This runs through the fetch conversation function
+    //And it runs for every conversation that we get, getting the messages for that conversationId
     const fetchMessages = (conversationId) => {
         fetch(`https://chatify-api.up.railway.app/messages?conversationId=${conversationId}`, {
             method: 'GET',
@@ -104,11 +117,11 @@ const Chat = () => {
             return response.json();
         })
         .then(data => {
+            //Here we get the messages for the conversationId we're looking at and store that information in an array, under the conversationId
             setMessages(prevMessages => ({
                 ...prevMessages,
                 [conversationId]: data // Store messages information by conversationId
             }));
-            console.log(data)
         })
         .catch(error => {
             console.error(`Error fetching messages for conversation ${conversationId}:`, error);
@@ -119,42 +132,7 @@ const Chat = () => {
         setSelectedConversation(newValue);
     };
 
-/*     useEffect(() => {
-        if (newMessage) {
-            fetchMessages();
-        }
-    }, []) */
-
-    /* useEffect(() => {
-        if (conversations.length > 0) {
-            conversations.map(conversation => (
-                fetch(`https://chatify-api.up.railway.app/messages?conversationId=${conversation}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        console.error("Failed to get messages: ", response)
-                    }
-                    return response.json();
-                })
-                .then(data => {
-/*                     setMessages(prevMessages => ({
-                        ...prevMessages,
-                        [conversation.id]: data.text // Store messages under the conversationId key
-                    })); 
-                    console.log(data)
-                })
-                .catch(error => {
-                    console.error("Failed to fetch messages: ", error)
-                })
-            ))
-        }
-    }, [conversations]) */
-
+    //Our function to send messages based on conversationId. This is connected to our tabs 
     const sendMessage = async (sendId) => {
         console.log(inputText.current.value)
         try {
@@ -185,8 +163,47 @@ const Chat = () => {
 
     return (
         <Grid container spacing={0}>
-            <Grid size={2}>
+{/*             <Grid size={2}>
             <Button onClick={() => getAllUsers(setUsers)}>Get all users!</Button>
+            </Grid> */}
+            <Grid size={6}>
+            <Tabs
+                    value={selectedConversation}
+                    onChange={handleTabChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    aria-label="conversation tabs"
+                >
+                    {conversations.map((conversation, index) => (
+                        <Tab  key={conversation.id} label={`Conversation ${index + 1}`} />
+                    ))}
+                </Tabs>
+                {conversations.map((conversation, index) => (
+                    <TabPanel key={conversation.id} value={selectedConversation} index={index}>
+                        <List sx={{overflow: 'auto', height: "75vh" }}>
+                            {messages[conversation] && messages[conversation].length > 0 ? (
+                                messages[conversation].map((message) => (
+                                    <ListItem key={message.id}>
+                                        <ListItemText 
+                                            primary={message.text} 
+                                            secondary={`Sent by User ${message.userId} on ${new Date(message.createdAt).toLocaleString()}`} 
+                                        />
+{/*                                          <TextField inputRef={inputText} label="Write a message" />
+                                        <Button onClick={() => sendMessage(message.conversationId)}>Send your message!</Button> */}
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <ListItem>
+                                    <ListItemText primary="No messages found" />
+                                </ListItem>
+                            )}
+                        </List>
+
+                            <TextField inputRef={inputText} label="Write a message" fullWidth />
+                            <Button variant="contained" color="primary" onClick={() => sendMessage(conversation)}>Send your message!</Button>
+
+                    </TabPanel>
+                ))}
             </Grid>
             <Grid size={2}>
             <TextField 
@@ -201,7 +218,7 @@ const Chat = () => {
             <Button onClick={search}>Search for user!</Button>
             </Grid>
             <Grid size={2}>
-                <List sx={{overflow: 'auto', maxHeight: 300,}}>
+                <List sx={{overflow: 'auto', height: "100vh"}}>
                     <Box sx={{ position: 'sticky', top: 0, zIndex: 1, backgroundColor: 'inherit' }} >
                         <ListItemButton position="sticky" onClick={handleClick}>
                             <ListItemIcon>
@@ -228,57 +245,11 @@ const Chat = () => {
                     </Collapse>
                 </List>
             </Grid>
-            <Grid size={6}>
-            <Tabs
-                    value={selectedConversation}
-                    onChange={handleTabChange}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    aria-label="conversation tabs"
-                >
-                    {conversations.map((conversation, index) => (
-                        <Tab key={conversation.id} label={`Conversation ${index + 1}`} />
-                    ))}
-                </Tabs>
-                {conversations.map((conversation, index) => (
-                    <TabPanel key={conversation.id} value={selectedConversation} index={index}>
-                        <List>
-                            {messages[conversation] && messages[conversation].length > 0 ? (
-                                messages[conversation].map((message) => (
-                                    <ListItem key={message.id}>
-                                        <ListItemText 
-                                            primary={message.text} 
-                                            secondary={`Sent by User ${message.userId} on ${new Date(message.createdAt).toLocaleString()}`} 
-                                        />
-{/*                                          <TextField inputRef={inputText} label="Write a message" />
-                                        <Button onClick={() => sendMessage(message.conversationId)}>Send your message!</Button> */}
-                                    </ListItem>
-                                ))
-                            ) : (
-                                <ListItem>
-                                    <ListItemText primary="No messages found" />
-                                </ListItem>
-                            )}
-                        </List>
-
-                            <TextField inputRef={inputText} label="Write a message" fullWidth />
-                            <Button variant="contained" color="primary" onClick={() => sendMessage(conversation)}>Send your message!</Button>
-
-                    </TabPanel>
-                ))}
-            </Grid>
-
-{/*             <Grid size={2}>
-            <Button onClick={() => setGuid(generateGuid)}>Generate guid!</Button>
-            </Grid> */}
-{/*             <Grid size={2}>
-            <TextField label='enter userID' inputRef={inputUserId} />
-            <Button onClick={handleInviteButtonClick}>Invite User!</Button>
-            </Grid> */}
         </Grid>
     )
 }
 
+//This TabPanel function is what helps manage our tabs, hide those that we arent looking at/using atm
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
