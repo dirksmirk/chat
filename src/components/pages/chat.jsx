@@ -13,12 +13,15 @@ import {
   Tab,
   Typography,
   Avatar,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { useEffect, useState, useRef, useContext } from "react";
 import { AuthenticateContext } from "../../Context";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import { getAllUsers } from "./Chat/GetAllUsers";
 import { generateGuid } from "./Chat/GenerateGuid";
@@ -36,7 +39,7 @@ const Chat = () => {
   const [messages, setMessages] = useState({});
   const [selectedConversation, setSelectedConversation] = useState(0);
   const [newMessage, setNewMessage] = useState("");
-  const [inviteResponse, setInviteResponse] = useState(false);
+  const [deletedMessage, setDeletedMessage] = useState(false);
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false)
 
@@ -120,12 +123,15 @@ const Chat = () => {
     //Till sist behöver vi kombinera alla konversationer. Våran Promise.all kör igång båda fetch requests samtidigt och inväntar att båda blir klara
     //Därefter så har vi två arrays av koversationIds, som vi slänger ihop till en array. Denna array går sedan igenom varje konversation och hämtar alla meddelanden för den konversationen
     //Detta kickar igång när man laddar in sidan och guid genereras, när man skickar en invita och guid genereras på nytt samt när man skickar ett nytt meddelande
-    if (guid || newMessage) {
+    if (guid || newMessage || deletedMessage) {
       Promise.all([fetchConversations(), fetchInvitedConversations()])
         .then(([fetchedConversations, invitedConversations]) => {
           const combinedConversations = [...fetchedConversations, ...invitedConversations];
           setConversations(combinedConversations);
           console.log("Combined conversations: ", combinedConversations);
+          if (deletedMessage === true) {
+            setDeletedMessage(false)
+          }
   
           // Fetch messages for each conversation
           combinedConversations.forEach((conversation) => {
@@ -136,7 +142,7 @@ const Chat = () => {
           console.error("Error fetching conversations:", error);
         });
     }
-  }, [guid, newMessage]);
+  }, [guid, newMessage, deletedMessage]);
 
   //Våran funktion för att hämta alla våra meddelanden ur våra konversationer. Körs varje gång vi hämtar konversationerna
   const fetchMessages = (conversationId) => {
@@ -148,8 +154,7 @@ const Chat = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
-    )
+      })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch messages");
@@ -211,6 +216,31 @@ const Chat = () => {
   }
   };
 
+  const DeleteMessage = (messageId) => {
+    fetch(
+        `https://chatify-api.up.railway.app/messages/${messageId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          }
+        })
+        .then((response) => {
+            if (!response.ok) {
+                    throw new Error("Failed to fetch messages", response);
+                  }
+            return response.json();
+            })
+        .then(() => {
+            console.log("Message succesfully deleted!")
+            setDeletedMessage(true);
+        })
+        .catch((error) => {
+            console.error("Network error:", error);
+        })
+  }
+
   return (
     <Grid container spacing={2} padding={2} margin={1}>
       <Grid size={6}>
@@ -220,6 +250,8 @@ const Chat = () => {
           variant="scrollable"
           scrollButtons="auto"
           aria-label="conversation tabs"
+          sx={{ width: "50vw"}}
+          
         >
           {conversations && conversations.length > 0 ? (
             conversations.map((conversation, index) => (
@@ -236,7 +268,7 @@ const Chat = () => {
             value={selectedConversation}
             index={index}
           >
-            <List sx={{ overflow: "auto", height: "75vh" }}>
+            <List sx={{ overflow: "auto", height: "65vh" }}>
               {messages[conversation] && messages[conversation].length > 0 ? (
                 messages[conversation].map((message) => {
                   const userInfo = getUserInfo(message.userId)
@@ -258,6 +290,13 @@ const Chat = () => {
                       />
                     )}
                     </ListItemIcon>
+                    {isLoggedInUser && (
+                            <Tooltip title="Delete message">
+                                <IconButton onClick={() => DeleteMessage(message.id)}>
+                                    <DeleteIcon />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                       <Box
                         sx={{
                           maxWidth: '60%',
@@ -311,15 +350,13 @@ const Chat = () => {
               backgroundColor: "primary",
             }}
           >
-            <ListItemButton position="sticky" onClick={handleClick}>
+            <ListItem position="sticky" onClick={handleClick}>
               <ListItemIcon>
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText primary="Users" />
-              {open ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
+            </ListItem>
           </Box>
-          <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
@@ -346,7 +383,6 @@ const Chat = () => {
                 </ListItem>
               )}
             </List>
-          </Collapse>
         </List>
       </Grid>
       <Grid size={2} margin={1}>
