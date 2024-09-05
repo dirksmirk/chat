@@ -54,21 +54,36 @@ const Home = () => {
           </Container>
         <Typography>The message was promptly dispatched.</Typography>
       </Container>
-      <Container
-        spacing={3}
-        sx={{
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          width: "15%",
-        }}
-      >
-        <NavLink to="/log-in">
+        {localStorage.getItem('auth') ? (
+          <Container
+          spacing={3}
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            width: "15%",
+          }}
+        >
+            <NavLink to="/chat">
+          <Button>Start chatting</Button>
+        </NavLink>
+        </Container>
+        ) : (
+          <Container
+          spacing={3}
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            width: "15%",
+          }}
+        >
+            <NavLink to="/log-in">
           <Button>Login</Button>
         </NavLink>
         <NavLink to="/register">
           <Button>Register</Button>
         </NavLink>
-      </Container>
+        </Container>
+        )}
     </Stack>
   );
 };

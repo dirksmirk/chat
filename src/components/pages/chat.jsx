@@ -29,7 +29,7 @@ const Chat = () => {
   const { decodedToken, setDecodedToken} = useContext(AuthenticateContext)
   const inputText = useRef();
   const searchQuery = useRef();
-  const [input, setInput] = useState();
+  const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
   const [guid, setGuid] = useState("");
   const [conversations, setConversations] = useState([]);

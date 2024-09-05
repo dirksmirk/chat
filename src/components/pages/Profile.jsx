@@ -107,10 +107,10 @@ const Profile = () => {
 
   //TODO: MAKE SURE THAT THE DATA SENT IN IS NEVER EMPTY
   //THE USER CAN LEAVE THE FIELDS EMPTY, BUT IF THEY'RE EMPTY THEY WILL POPULATE W CURRENT INFORMATION
+  //MAKE SURE THE setUsername AND setEmail STATES ARE ACTUALLY SET BEFORE WE SEND IN THE PROFILE INFO
   const handleProfile = () => {
     setUsername(loginUser.current.value)
     setEmail(mail.current.value)
-
     fetch("https://chatify-api.up.railway.app/user", {
       method: "PUT",
       headers: {
@@ -188,8 +188,8 @@ const Profile = () => {
     <Grid container spacing={2}>
     <Grid item>
       <Typography>Change your settings</Typography>
-      <TextField inputRef={loginUser} label={username} />
-      <TextField inputRef={mail} label={email} />
+      <TextField  inputRef={loginUser} label={username} />
+      <TextField  inputRef={mail} label={email} />
       <Button type="submit" onClick={handleProfile}>
         Submit
       </Button>

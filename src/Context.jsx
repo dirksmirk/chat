@@ -83,7 +83,7 @@ const AuthContextProvider = (props) => {
     const logout = () => {
       localStorage.clear();
       setAuth(false)
-      logoutNavigate('/')
+      logoutNavigate('/log-in')
     }
 
     return (
