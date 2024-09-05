@@ -8,7 +8,7 @@ import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { Divider, Switch} from "@mui/material";
+import { Divider, Switch, Tooltip} from "@mui/material";
 import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
@@ -32,37 +32,49 @@ function SideNav() {
              <h2>Navigation</h2>
           )}
         </MenuItem>
-        <NavLink to="/">
-          <MenuItem icon={<HomeOutlinedIcon />}>Home</MenuItem>
-        </NavLink>
+        <Tooltip title="Home" followCursor >
+          <NavLink to="/">
+            <MenuItem icon={<HomeOutlinedIcon />}>Home</MenuItem>
+          </NavLink>
+        </Tooltip>
         {/* Replace login with chat when logged in and vice versa */}
         { localStorage.getItem('auth') ? (
-        <NavLink to="/chat">
-          <MenuItem icon={<ChatOutlinedIcon />}>Chat</MenuItem>
-        </NavLink>
+          <Tooltip title="Chat" followCursor >
+            <NavLink to="/chat">
+              <MenuItem icon={<ChatOutlinedIcon />}>Chat</MenuItem>
+            </NavLink>
+          </Tooltip>
         ) : ( 
+        <Tooltip title="Login" followCursor >
           <NavLink to="/log-in">
-          <MenuItem icon={<LoginOutlinedIcon />}>Login</MenuItem>
-        </NavLink>
+            <MenuItem icon={<LoginOutlinedIcon />}>Login</MenuItem>
+          </NavLink>
+        </Tooltip>
         )}
         {/* Remove register when logged in, instead display profile */}
         { localStorage.getItem('auth') ? (
+        <Tooltip title="Profile" followCursor >
           <NavLink to="/profile">
             <MenuItem icon={<AccountBoxOutlinedIcon />}>Profile</MenuItem>
           </NavLink>
+        </Tooltip>
         ) : (
+        <Tooltip title="Register" followCursor >
           <NavLink to="/register">
             <MenuItem icon={<PersonAddAltOutlinedIcon />}>Register</MenuItem>
           </NavLink>
+        </Tooltip>
         )}
         {/* Insert logout button when logged in */}
         { localStorage.getItem('auth') && (
+        <Tooltip title="Logout" followCursor >
           <MenuItem
             icon={<LogoutIcon />}
             onClick={logout}
-          >
+            >
             Logout
           </MenuItem>
+        </Tooltip>
         )}
         <Divider variant="middle" component="menu" />
           <Switch checked={mode === "dark"} onChange={toggleTheme} />
