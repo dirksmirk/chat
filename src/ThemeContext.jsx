@@ -1,5 +1,5 @@
 import { createContext, useState, useMemo } from 'react';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { ThemeProvider, createTheme, CssBaseline, Paper, styled } from '@mui/material';
 
 // Create the ThemeContext
 export const ThemeContext = createContext();
@@ -23,6 +23,12 @@ const lightTheme = createTheme({
   }
 });
 
+const ProfilePaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+  ...theme.typography.body2,
+  textAlign: 'center',
+}));
+
 // Create a ThemeProvider component
 const CustomThemeProvider = (props) => {
   const [mode, setMode] = useState("light");
@@ -35,7 +41,7 @@ const CustomThemeProvider = (props) => {
   const selectedTheme = useMemo(() => (mode === "dark" ? darkTheme : lightTheme), [mode]);
 
   return (
-    <ThemeContext.Provider value={{ mode, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, toggleTheme, ProfilePaper}}>
       <ThemeProvider theme={selectedTheme}>
         <CssBaseline />
         {props.children}

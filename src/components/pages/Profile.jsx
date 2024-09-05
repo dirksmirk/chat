@@ -10,12 +10,15 @@ import {
   IconButton,
   Typography,
   styled,
-  Grid
+  Stack,
+  Box
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import { MuiFileInput } from "mui-file-input";
 import { useContext, useEffect, useRef, useState } from "react";
 import { AuthenticateContext } from "../../Context";
+import { ThemeContext } from "../../ThemeContext";
+
 
 const Profile = () => {
   const {
@@ -31,6 +34,8 @@ const Profile = () => {
     username,
     setUsername
   } = useContext(AuthenticateContext);
+
+  const { ProfilePaper } = useContext(ThemeContext)
 
   const deleteUser = useRef();
   const [file, setFile] = useState(null);
@@ -198,23 +203,23 @@ const Profile = () => {
   }};
 
   return (
-    <Grid container spacing={2}>
-    <Grid item>
+    <Box
+    >
+      <ProfilePaper>
+      <Stack sx={{ width: "40vh" }}>
       <Typography>Change your settings</Typography>
       <TextField  inputRef={loginUser} label={username} />
       <TextField  inputRef={mail} label={email} />
       <Button type="submit" onClick={handleProfile}>
         Submit
       </Button>
-    </Grid>
-    <Grid item>
+      </Stack>
     <Avatar
         alt="Profile picture"
         src={avatar}
         sx={{ width: 56, height: 56 }}
         onClick={handlePictureOpen}
         />
-    </Grid>
       <BootstrapDialog
         onClose={handlePictureClose}
         aria-labelledby="customized-dialog-title"
@@ -253,11 +258,9 @@ const Profile = () => {
           </DialogActions>
       </BootstrapDialog>
 
-    <Grid item>
     <Button variant="outlined" color="error" onClick={handleDeleteClickOpen}>
       Delete my account
     </Button>
-    </Grid>
     <BootstrapDialog
         onClose={handleDeleteClose}
         aria-labelledby="customized-dialog-title"
@@ -308,7 +311,8 @@ const Profile = () => {
           </DialogActions>
           )}
       </BootstrapDialog>
-      </Grid>
+      </ProfilePaper>
+    </Box>
   );
 };
 

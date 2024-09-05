@@ -1,11 +1,12 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { FormControl, FormLabel, Button, TextField } from "@mui/material";
+import { FormControl, FormLabel, Button, TextField, Box } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
+import { ThemeContext } from "../../ThemeContext";
 
 const Register = () => {
   const { csrf, loginUser, password, mail } = useContext(AuthenticateContext)
-  // Refs to store input values
+  const { ProfilePaper } = useContext(ThemeContext)
 
   const Navigate = useNavigate();
   const authenticated = localStorage.getItem('auth');
@@ -76,13 +77,17 @@ const Register = () => {
   }
 
   return (
-    <FormControl>
-      <FormLabel>Enter your information</FormLabel>
-      <TextField required inputRef={loginUser} label="Username" />
-      <TextField required inputRef={password} label="Password" />
-      <TextField required inputRef={mail} label="E-mail" />
+    <Box>
+      <ProfilePaper elevation={4}>
+      <FormControl>
+        <FormLabel>Enter your information</FormLabel>
+        <TextField required inputRef={loginUser} label="Username" />
+        <TextField required inputRef={password} label="Password" />
+        <TextField required inputRef={mail} label="E-mail" />
       <Button type="submit" onClick={handleSubmit}>Submit</Button>
     </FormControl>
+      </ProfilePaper>
+    </Box>
   );
 };
 
