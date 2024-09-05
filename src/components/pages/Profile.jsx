@@ -38,10 +38,12 @@ const Profile = () => {
   const [pictureOpen, setPictureOpen] = useState(false);
   const [userDeleted, setUserDeleted] = useState(false);
 
+  //Vi hämtar våran decodedtoken, I korrekt format så vi kan hämta all data, när vi renderar vårat objekt
   useEffect(() => {
       setDecodedToken(JSON.parse(localStorage.getItem("decodedToken")))
   }, [])
 
+  //När vi har satt vårat decodade token så sätter vi också all användar info
   useEffect(() => {
     if (decodedToken) {
       setUsername(decodedToken.user);
@@ -59,6 +61,7 @@ const Profile = () => {
     },
   }));
 
+  //Våra modal open/close hanterare. För delete och ny bild 
   const handleDeleteClickOpen = () => {
     setDeleteOpen(true);
   };
@@ -72,11 +75,13 @@ const Profile = () => {
     setPictureOpen(false);
   };
 
+  //När vi laddar upp en ny profilbild till MuiFileInput så uppdateras våran sparade fil genom denna effect
   const newPicture = (picture) => {
     setFile(picture);
     console.info("User uploaded a new picture!")
   };
 
+  //Funktionen som laddar upp våran profilbild till imgbb
   const pictureUpload = () => {
     var form = new FormData();
     form.append("image", file);
@@ -105,13 +110,17 @@ const Profile = () => {
       });
   };
 
-  //TODO: MAKE SURE THAT THE DATA SENT IN IS NEVER EMPTY
-  //THE USER CAN LEAVE THE FIELDS EMPTY, BUT IF THEY'RE EMPTY THEY WILL POPULATE W CURRENT INFORMATION
-  //MAKE SURE THE setUsername AND setEmail STATES ARE ACTUALLY SET BEFORE WE SEND IN THE PROFILE INFO
-  const handleProfile = () => {
+  //Funktionen som hanterar updateringen av profilen.
+  const handleProfile = (e) => {
+    e.preventDefault();
+
     setUsername(loginUser.current.value)
     setEmail(mail.current.value)
-    fetch("https://chatify-api.up.railway.app/user", {
+    
+    //Här så säger vi att fetch requesten får uppdatera sig först efter att vi uppdaterat state för username och email
+    setUsername((username) => {
+      setEmail((email) => {
+        fetch("https://chatify-api.up.railway.app/user", {
       method: "PUT",
       headers: {
         'Content-Type': 'application/json',
@@ -150,9 +159,13 @@ const Profile = () => {
       })
       .finally(() => {
         console.log(localStorage.getItem("decodedToken"))
-      })
+        });
+      });
+    });
   };
 
+  //Funktionen som hanterar raderandet av profilen.
+  //Det användarnamn användaren skriver in måste vara exakt samma som det vi har sparat i vårat token för att tillåta användaren att radera sin profil
   const DeleteProfile = () => {
     if (decodedToken.user === deleteUser.current.value) {
       fetch(`https://chatify-api.up.railway.app/users/${decodedToken.id}`,

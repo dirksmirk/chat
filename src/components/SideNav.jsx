@@ -8,7 +8,7 @@ import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import { useState, useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { Divider, Switch, Tooltip} from "@mui/material";
+import { Divider, Switch, Tooltip, Fade } from "@mui/material";
 import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
