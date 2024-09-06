@@ -1,13 +1,12 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { FormControl, FormLabel, Button, TextField, Box } from "@mui/material";
+import { FormControl, FormLabel, Button, TextField, Box, Alert } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
 import { ThemeContext } from "../../ThemeContext";
 
 const Register = () => {
-  const { csrf, loginUser, password, mail } = useContext(AuthenticateContext)
+  const { csrf, loginUser, password, mail, noreg, setNoreg } = useContext(AuthenticateContext)
   const { ProfilePaper } = useContext(ThemeContext)
-
   const Navigate = useNavigate();
   const authenticated = localStorage.getItem('auth');
 
@@ -52,16 +51,16 @@ const Register = () => {
       const result = await response.json();
 
       if (response.ok) {
+        setNoreg(false)
         // Handle successful registration
         console.log("Registration successful: ", result.message);
         Navigate('/log-in');
       } else {
         // Handle error response
-        if (result.error === "Username or email already exists") {  
+        if (result.error === "Username or email already exists") {
+          setNoreg(true)
           // Alert the user about the existing username
-          alert(
-            "The username or email you entered already exists. Please choose a different one."
-          );
+          console.error("The username or email you entered already exists. Please choose a different one.")
         }
         else {
           // Handle other possible errors
@@ -88,10 +87,22 @@ const Register = () => {
       <ProfilePaper elevation={4}>
       <FormControl>
         <FormLabel gutterBottom>Enter your information</FormLabel>
+        { noreg && (
+          <Alert severity="error">That username or email already exists</Alert>
+        )}
         <TextField required inputRef={loginUser} label="Username" sx={{ margin: "1%" }} />
         <TextField required inputRef={password} label="Password" sx={{ margin: "1%" }} />
         <TextField required inputRef={mail} label="E-mail" sx={{ margin: "1%" }} />
-      <Button type="submit" onClick={handleSubmit}>Submit</Button>
+      <Button 
+      type="submit" 
+      onClick={handleSubmit}
+      variant="outlined"
+      sx={{
+        mt: '3%',
+        width: '50%',
+        alignSelf: 'center'
+      }}
+      >Submit</Button>
     </FormControl>
       </ProfilePaper>
     </Box>

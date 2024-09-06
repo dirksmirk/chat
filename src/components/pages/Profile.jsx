@@ -297,7 +297,7 @@ const Profile = () => {
           { userDeleted ? (
           <DialogContent dividers>
             <Typography gutterBottom>
-              Your account has now been deleted! You will now be redirected to the home page
+              Your account has now been deleted! You will now be redirected to the login page!
             </Typography>
             </DialogContent>
           ) : (

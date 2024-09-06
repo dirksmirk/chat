@@ -15,6 +15,9 @@ const AuthContextProvider = (props) => {
     const [username, setUsername] = useState('');
     const [decodedToken, setDecodedToken] = useState('')
     const [auth, setAuth] = useState('');
+    const [open, setOpen] = useState(false);
+    const [noreg, setNoreg] = useState(false);
+
 
     const logoutNavigate = useNavigate();
 
@@ -59,21 +62,31 @@ const AuthContextProvider = (props) => {
           body: JSON.stringify(data),
         }
     );
-    if (!response.ok) {
-        // Handle other possible errors
-        const errorData = await response.json();
-        setError(errorData.error)
-        console.error("Error: ", error);
-        alert("An error occurred", error);
-      }
-      // Either set up w if so that token is saved to local or sessionstorage based on user input
-      // OR just change so that token saves to a cookie that expires after a certain time
+
+    const result = await response.json();
+
+    if (response.ok) {
+      setNoreg(false)
+      // Handle successful registration
       const genToken = await response.json();
       localStorage.setItem('token', genToken.token);
       const decToken = JSON.parse(atob(genToken.token.split('.')[1]));
       localStorage.setItem('decodedToken', JSON.stringify(decToken));
       setAuth(true)
-      console.log("user was logged in!")
+      setOpen(true)
+      console.log("Successfully logged in!");
+    } else {
+      // Handle error response
+      if (result.error === "Invalid credentials") {
+        setNoreg(true)
+        // Alert the user about the existing username
+        console.error("Invalid login credentials. Please try again")
+      }
+      else {
+        // Handle other possible errors
+        console.error("Error:", result.message);
+      }
+    }
     } catch (error) {
         console.error("Unexpected error:", error);
         alert("An unexpected error occurred. Please try again later.");
@@ -94,7 +107,9 @@ const AuthContextProvider = (props) => {
           logout, csrf,
           decodedToken, setDecodedToken,
           email, setEmail,
-          username, setUsername}}>
+          username, setUsername,
+          open, setOpen,
+          noreg, setNoreg}}>
             {props.children}
         </AuthenticateContext.Provider>
     );

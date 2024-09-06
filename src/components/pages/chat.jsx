@@ -350,6 +350,7 @@ const Chat = () => {
               variant="contained"
               color="primary"
               onClick={() => sendMessage(conversation)}
+              disabled={loading}
               sx={{
                 height: '50px', // Ensure the button matches the TextField height
                 width: '50px',

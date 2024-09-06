@@ -18,7 +18,7 @@ const lightTheme = createTheme({
   palette: {
     mode: "light",
     background: {
-      default: "hex(#fffde5)"
+      default: "hsl(55, 100, 95)"
     }
   }
 });
