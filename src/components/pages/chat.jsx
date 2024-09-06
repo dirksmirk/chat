@@ -11,18 +11,15 @@ import {
   Box,
   Tabs,
   Tab,
-  Typography,
   Avatar,
   Tooltip,
   IconButton,
+  ListSubheader,
 } from "@mui/material";
 import { useEffect, useState, useRef, useContext } from "react";
 import { AuthenticateContext } from "../../Context";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import SendIcon from '@mui/icons-material/Send';
 import { getAllUsers } from "./Chat/GetAllUsers";
 import { generateGuid } from "./Chat/GenerateGuid";
 import { inviteUser } from "./Chat/InviteUsers";
@@ -31,7 +28,6 @@ import DOMPurify from "dompurify";
 const Chat = () => {
   const { decodedToken, setDecodedToken} = useContext(AuthenticateContext)
   const inputText = useRef();
-  const searchQuery = useRef();
   const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
   const [guid, setGuid] = useState("");
@@ -40,23 +36,11 @@ const Chat = () => {
   const [selectedConversation, setSelectedConversation] = useState(0);
   const [newMessage, setNewMessage] = useState("");
   const [deletedMessage, setDeletedMessage] = useState(false);
-  const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false)
-
-  //handle the opening and closing of our user list
-  const handleClick = () => {
-    setOpen(!open);
-  };
 
   useEffect(() => {
     setDecodedToken(JSON.parse(localStorage.getItem("decodedToken")))
 }, [])
-
-  //Sätter vad vi sökt från våran referens till våran input state
-  const search = () => {
-    const inputValue = searchQuery.current.value.trim();
-    setInput(inputValue);
-  };
 
   //Filtrerar användarlistan baserat på vad vi sökt
   const filteredUsers = input
@@ -140,6 +124,7 @@ const Chat = () => {
         })
         .catch((error) => {
           console.error("Error fetching conversations:", error);
+          setLoading(false);
         });
     }
   }, [guid, newMessage, deletedMessage]);
@@ -173,7 +158,10 @@ const Chat = () => {
           `Error fetching messages for conversation ${conversationId}:`,
           error
         );
-      });
+      })
+      .finally(() => {
+        setLoading(false);
+      })
   };
     //Funktion som hanterar att när man klickar på en tab, byter man till den
   const handleTabChange = (event, newValue) => {
@@ -183,7 +171,8 @@ const Chat = () => {
   //Våran funktion för att skicka meddelanden. baseras på conversationId, som fås baserat på vilken tab man är inne på
   const sendMessage = async (sendId) => {
     if (inputText.current.value.length > 0) {
-      const cleanMessage = DOMPurify.sanitize(inputText.current.value)
+      const cleanMessage = DOMPurify.sanitize(inputText.current.value);
+      setLoading(true);
       try {
         const response = await fetch(
         "https://chatify-api.up.railway.app/messages",
@@ -207,9 +196,11 @@ const Chat = () => {
         inputText.current.value = "";
       } else {
         console.log("Error sending message:", data);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Network error:", error);
+      setLoading(false);
     }
   } else {
     console.log("the message is empty!")
@@ -243,7 +234,7 @@ const Chat = () => {
 
   return (
     <Grid container spacing={2} padding={2} margin={1}>
-      <Grid size={6}>
+      <Grid size={8}>
         <Tabs
           value={selectedConversation}
           onChange={handleTabChange}
@@ -329,34 +320,37 @@ const Chat = () => {
                 </ListItem>
               )}
             </List>
-            <TextField inputRef={inputText} label="Write a message" fullWidth />
+            <TextField inputRef={inputText} label="Write a message" />
             <Button
               variant="contained"
               color="primary"
               onClick={() => sendMessage(conversation)}
             >
-              Send your message!
+              <IconButton>
+                <SendIcon />
+              </IconButton>
             </Button>
           </TabPanel>
         ))}
       </Grid>
-      <Grid size={2} margin={1}>
-        <List sx={{ overflow: "auto", height: "85vh" }}>
-          <Box
-            sx={{
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-              backgroundColor: "primary",
-            }}
-          >
-            <ListItem position="sticky" onClick={handleClick}>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Users" />
-            </ListItem>
-          </Box>
+      <Grid size={4} margin={1}>
+      <TextField
+          label="search for user"
+          variant="outlined"
+          fullWidth
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <List 
+        sx={{ overflow: "auto", height: "70vh" }}
+        aria-labelledby="invite-user"
+        subheader={
+        <ListSubheader component="div" id="invite-user">
+          Start your dispatch
+        </ListSubheader>
+      }
+        >
             <List component="div" disablePadding>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
@@ -384,23 +378,6 @@ const Chat = () => {
               )}
             </List>
         </List>
-      </Grid>
-      <Grid size={2} margin={1}>
-        <Typography>
-          Click on the user in the list you want to invite to a conversation!
-        </Typography>
-      </Grid>
-      <Grid size={2} margin={1}>
-        <TextField
-          label="search for user"
-          variant="outlined"
-          fullWidth
-          inputRef={searchQuery}
-          sx={{ mb: 2 }}
-        />
-      </Grid>
-      <Grid size={2}>
-        <Button onClick={search}>Search for user!</Button>
       </Grid>
     </Grid>
   );
