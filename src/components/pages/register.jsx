@@ -1,14 +1,22 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { FormControl, FormLabel, Button, TextField, Box, Alert } from "@mui/material";
+import { FormControl, FormLabel, Button, TextField, Box, Alert, Snackbar } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
 import { ThemeContext } from "../../ThemeContext";
 
 const Register = () => {
-  const { csrf, loginUser, password, mail, noreg, setNoreg } = useContext(AuthenticateContext)
+  const { csrf, loginUser, password, mail, noreg, setNoreg, open, setOpen } = useContext(AuthenticateContext)
   const { ProfilePaper } = useContext(ThemeContext)
   const Navigate = useNavigate();
   const authenticated = localStorage.getItem('auth');
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
 
   useEffect(() => {
         if(authenticated) {
@@ -51,10 +59,13 @@ const Register = () => {
       const result = await response.json();
 
       if (response.ok) {
+        setOpen(true)
         setNoreg(false)
         // Handle successful registration
         console.log("Registration successful: ", result.message);
-        Navigate('/log-in');
+        setTimeout(() => {
+          Navigate('/log-in');
+        }, 2000);
       } else {
         // Handle error response
         if (result.error === "Username or email already exists") {
@@ -103,6 +114,12 @@ const Register = () => {
         alignSelf: 'center'
       }}
       >Submit</Button>
+      <Snackbar
+            open={open}
+            autoHideDuration={1500}
+            onClose={handleClose}
+            message="Your account was created!"
+      />
     </FormControl>
       </ProfilePaper>
     </Box>
