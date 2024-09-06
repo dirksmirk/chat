@@ -5,7 +5,6 @@ import {
   ListItemText,
   ListItemButton,
   ListItemIcon,
-  Collapse,
   Button,
   Grid,
   Box,
@@ -15,9 +14,8 @@ import {
   Tooltip,
   IconButton,
   ListSubheader,
-  Divider,
 } from "@mui/material";
-import { useEffect, useState, useRef, useContext, Fragment } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { AuthenticateContext } from "../../Context";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
@@ -310,7 +308,7 @@ const Chat = () => {
                       <Box
                         sx={{
                           maxWidth: '60%',
-                          backgroundColor: isLoggedInUser ? '#DCF8C6' : '#FFFFFF',
+                          border: '2px solid' ,
                           borderRadius: '10px',
                           padding: '10px',
                           textAlign: isLoggedInUser ? 'right' : 'left',

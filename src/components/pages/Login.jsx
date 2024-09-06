@@ -1,6 +1,6 @@
 import { useEffect, useContext} from "react";
 import { useNavigate } from "react-router";
-import { FormControl, FormLabel, Button, TextField, Typography, Box } from "@mui/material";
+import { Button, TextField, Typography, Box, Stack } from "@mui/material";
 import { AuthenticateContext } from "../../Context";
 import { ThemeContext } from "../../ThemeContext";
 
@@ -30,15 +30,15 @@ const LogIn = () => {
     }}
     >
       <ProfilePaper>
-        <FormControl>
-          <FormLabel>Welcome to Dispatch</FormLabel>
-          <Typography>
+        <Stack>
+          <Typography variant="h4" gutterBottom >Welcome to Dispatch</Typography>
+          <Typography variant="subtitle2" gutterBottom >
             Use the below fields to login
           </Typography>
-          <TextField required inputRef={loginUser} label="Username" />
-          <TextField required inputRef={password} label="Password" />          
+          <TextField required inputRef={loginUser} label="Username" sx={{ margin: "1%" }} />
+          <TextField required inputRef={password} label="Password" sx={{ margin: "1%" }} />          
           <Button type="submit" onClick={handleLogin}>Submit</Button>
-        </FormControl>
+        </Stack>
       </ProfilePaper>
     </Box>
       );

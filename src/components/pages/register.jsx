@@ -87,10 +87,10 @@ const Register = () => {
     >
       <ProfilePaper elevation={4}>
       <FormControl>
-        <FormLabel>Enter your information</FormLabel>
-        <TextField required inputRef={loginUser} label="Username" />
-        <TextField required inputRef={password} label="Password" />
-        <TextField required inputRef={mail} label="E-mail" />
+        <FormLabel gutterBottom>Enter your information</FormLabel>
+        <TextField required inputRef={loginUser} label="Username" sx={{ margin: "1%" }} />
+        <TextField required inputRef={password} label="Password" sx={{ margin: "1%" }} />
+        <TextField required inputRef={mail} label="E-mail" sx={{ margin: "1%" }} />
       <Button type="submit" onClick={handleSubmit}>Submit</Button>
     </FormControl>
       </ProfilePaper>

@@ -2,7 +2,6 @@ import {
   Button,
   TextField,
   Avatar,
-  Container,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -219,9 +218,9 @@ const Profile = () => {
         }}
         >
       <Stack sx={{ width: "30vh", mr: 2 }}>
-        <Typography>Change your settings</Typography>
-        <TextField  inputRef={loginUser} label={username} />
-        <TextField  inputRef={mail} label={email} />
+        <Typography gutterBottom>Change your settings</Typography>
+        <TextField  inputRef={loginUser} label={username} sx={{ margin: "1%" }} />
+        <TextField  inputRef={mail} label={email} sx={{ margin: "1%" }} />
         <Button type="submit" onClick={handleProfile} sx={{}}>
           Submit
         </Button>
