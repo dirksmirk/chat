@@ -15,8 +15,9 @@ import {
   Tooltip,
   IconButton,
   ListSubheader,
+  Divider,
 } from "@mui/material";
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef, useContext, Fragment } from "react";
 import { AuthenticateContext } from "../../Context";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
@@ -112,7 +113,7 @@ const Chat = () => {
         .then(([fetchedConversations, invitedConversations]) => {
           const combinedConversations = [...fetchedConversations, ...invitedConversations];
           setConversations(combinedConversations);
-          console.log("Combined conversations: ", combinedConversations);
+          console.log("Conversations combined");
           if (deletedMessage === true) {
             setDeletedMessage(false)
           }
@@ -125,7 +126,10 @@ const Chat = () => {
         .catch((error) => {
           console.error("Error fetching conversations:", error);
           setLoading(false);
-        });
+        })
+        .finally(() => {
+          setLoading(false);
+        })
     }
   }, [guid, newMessage, deletedMessage]);
 
@@ -147,7 +151,8 @@ const Chat = () => {
         return response.json();
       })
       .then((data) => {
-          //När vi får våra meddelanden och kopplad information så sparar vi det i en array under våran message state, som är kopplade under deras conversationId
+        console.log("mapping out messages")
+        //När vi får våra meddelanden och kopplad information så sparar vi det i en array under våran message state, som är kopplade under deras conversationId
        setMessages((prevMessages) => ({
           ...prevMessages,
           [conversationId]: data, // Store messages information by conversationId
@@ -158,9 +163,6 @@ const Chat = () => {
           `Error fetching messages for conversation ${conversationId}:`,
           error
         );
-      })
-      .finally(() => {
-        setLoading(false);
       })
   };
     //Funktion som hanterar att när man klickar på en tab, byter man till den
@@ -232,6 +234,22 @@ const Chat = () => {
         })
   }
 
+  // försökte fixa något här där jag försökte koppla konversationer från /conversations fetchen till ett userID
+  //Så att man kunde koppla ett namn/avatar till konversationen. Men enda jag lyckades göra var att hämta namnet på första meddelandet.
+  //Låter denna ligga då jag försökte, men kör på att dem bara får het konversation 1, 2, 3 etc...
+/*   const getOtherParticipantInfo = (conversationId) => {
+    const conversationMessages = messages[conversationId];
+    if (conversationMessages && conversationMessages.length > 0) {
+      const otherMessage = conversationMessages.find(
+        (message) => message.userId !== decodedToken.userId
+      );
+      if (otherMessage) {
+        return getUserInfo(otherMessage.userId);
+      }
+    }
+    return null;
+  }; */
+
   return (
     <Grid container spacing={2} padding={2} margin={1}>
       <Grid size={8}>
@@ -242,14 +260,15 @@ const Chat = () => {
           scrollButtons="auto"
           aria-label="conversation tabs"
           sx={{ width: "50vw"}}
-          
         >
           {conversations && conversations.length > 0 ? (
             conversations.map((conversation, index) => (
-              <Tab key={conversation.id} label={`Conversation ${index + 1}`} />
+                <Tab key={conversation.id} 
+                label={`Conversation ${index + 1}`} 
+                />
             ))
           ) : (
-            <Tab label="No conversatio yet. Invite someone to get started!" />
+            <Tab label="No conversations." />
           )
         }
         </Tabs>
@@ -319,17 +338,31 @@ const Chat = () => {
                   <ListItemText primary="No messages found" />
                 </ListItem>
               )}
+              
             </List>
-            <TextField inputRef={inputText} label="Write a message" />
+          <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center', // Vertically align items
+            width: '100%', // Ensure the container takes full width
+          }}
+          >
+            <TextField inputRef={inputText} label="Write a message" sx={{ flex: 1, marginRight: "1%" }} />
             <Button
               variant="contained"
               color="primary"
               onClick={() => sendMessage(conversation)}
-            >
+              sx={{
+                height: '50px', // Ensure the button matches the TextField height
+                width: '50px',
+                padding: '0 16px', // Adjust padding to center the icon
+              }}
+              >
               <IconButton>
                 <SendIcon />
               </IconButton>
             </Button>
+          </Box>
           </TabPanel>
         ))}
       </Grid>
