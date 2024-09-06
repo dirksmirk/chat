@@ -25,7 +25,8 @@ import { inviteUser } from "./Chat/InviteUsers";
 import DOMPurify from "dompurify";
 
 const Chat = () => {
-  const { decodedToken, setDecodedToken} = useContext(AuthenticateContext)
+  const { decodedToken, setDecodedToken,
+    inviteResponse, setInviteResponse } = useContext(AuthenticateContext)
   const inputText = useRef();
   const [input, setInput] = useState('');
   const [users, setUsers] = useState([]);
@@ -100,13 +101,17 @@ const Chat = () => {
         })
         .then((data) => {
           const invites = JSON.parse(data[0].invite);
-          return invites.map(invite => invite.conversationId);
+          if (invites === null) {
+            return [];
+          } else {
+            return invites.map(invite => invite.conversationId);
+          }
         });
     };
     //Till sist behöver vi kombinera alla konversationer. Våran Promise.all kör igång båda fetch requests samtidigt och inväntar att båda blir klara
     //Därefter så har vi två arrays av koversationIds, som vi slänger ihop till en array. Denna array går sedan igenom varje konversation och hämtar alla meddelanden för den konversationen
     //Detta kickar igång när man laddar in sidan och guid genereras, när man skickar en invita och guid genereras på nytt samt när man skickar ett nytt meddelande
-    if (guid || newMessage || deletedMessage) {
+    if (guid || newMessage || deletedMessage ) {
       Promise.all([fetchConversations(), fetchInvitedConversations()])
         .then(([fetchedConversations, invitedConversations]) => {
           const combinedConversations = [...fetchedConversations, ...invitedConversations];
@@ -231,22 +236,6 @@ const Chat = () => {
             console.error("Network error:", error);
         })
   }
-
-  // försökte fixa något här där jag försökte koppla konversationer från /conversations fetchen till ett userID
-  //Så att man kunde koppla ett namn/avatar till konversationen. Men enda jag lyckades göra var att hämta namnet på första meddelandet.
-  //Låter denna ligga då jag försökte, men kör på att dem bara får het konversation 1, 2, 3 etc...
-/*   const getOtherParticipantInfo = (conversationId) => {
-    const conversationMessages = messages[conversationId];
-    if (conversationMessages && conversationMessages.length > 0) {
-      const otherMessage = conversationMessages.find(
-        (message) => message.userId !== decodedToken.userId
-      );
-      if (otherMessage) {
-        return getUserInfo(otherMessage.userId);
-      }
-    }
-    return null;
-  }; */
 
   return (
     <Grid container spacing={2} padding={2} margin={1}>
@@ -389,7 +378,8 @@ const Chat = () => {
                   <ListItemButton
                     key={user.userId}
                     sx={{ pl: 4 }}
-                    onClick={() => inviteUser(user.userId, guid, setGuid)}
+                    onClick={() =>
+                      inviteUser(user.userId, guid, setGuid)}
                   >
                     <ListItemIcon>
                       <Avatar

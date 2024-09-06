@@ -146,7 +146,7 @@ const Profile = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Successfully updated your profile" + JSON.stringify(data));
+        console.log("Successfully updated your profile");
         console.log(data)
         localStorage.setItem(
           "decodedToken",
@@ -219,8 +219,8 @@ const Profile = () => {
         >
       <Stack sx={{ width: "30vh", mr: 2 }}>
         <Typography gutterBottom>Change your settings</Typography>
-        <TextField  inputRef={loginUser} label={username} sx={{ margin: "1%" }} />
-        <TextField  inputRef={mail} label={email} sx={{ margin: "1%" }} />
+        <TextField  inputRef={loginUser} value={username} sx={{ margin: "1%" }} />
+        <TextField  inputRef={mail} value={email} sx={{ margin: "1%" }} />
         <Button type="submit" onClick={handleProfile} sx={{}}>
           Submit
         </Button>

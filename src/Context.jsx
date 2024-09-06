@@ -17,6 +17,7 @@ const AuthContextProvider = (props) => {
     const [auth, setAuth] = useState('');
     const [open, setOpen] = useState(false);
     const [noreg, setNoreg] = useState(false);
+    const [inviteResponse, setInviteResponse] = useState(false)
 
 
     const logoutNavigate = useNavigate();
@@ -104,7 +105,8 @@ const AuthContextProvider = (props) => {
           email, setEmail,
           username, setUsername,
           open, setOpen,
-          noreg, setNoreg}}>
+          noreg, setNoreg,
+          inviteResponse, setInviteResponse}}>
             {props.children}
         </AuthenticateContext.Provider>
     );
