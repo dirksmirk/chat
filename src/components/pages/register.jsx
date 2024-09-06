@@ -77,7 +77,14 @@ const Register = () => {
   }
 
   return (
-    <Box>
+    <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+    }}
+    >
       <ProfilePaper elevation={4}>
       <FormControl>
         <FormLabel>Enter your information</FormLabel>

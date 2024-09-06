@@ -204,20 +204,32 @@ const Profile = () => {
 
   return (
     <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+    }}
     >
       <ProfilePaper>
-      <Stack sx={{ width: "40vh" }}>
-      <Typography>Change your settings</Typography>
-      <TextField  inputRef={loginUser} label={username} />
-      <TextField  inputRef={mail} label={email} />
-      <Button type="submit" onClick={handleProfile}>
-        Submit
-      </Button>
+        <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center', // Aligns Avatar with TextFields
+        }}
+        >
+      <Stack sx={{ width: "30vh", mr: 2 }}>
+        <Typography>Change your settings</Typography>
+        <TextField  inputRef={loginUser} label={username} />
+        <TextField  inputRef={mail} label={email} />
+        <Button type="submit" onClick={handleProfile} sx={{}}>
+          Submit
+        </Button>
       </Stack>
     <Avatar
         alt="Profile picture"
         src={avatar}
-        sx={{ width: 56, height: 56 }}
+        sx={{ width: 96, height: 96 }}
         onClick={handlePictureOpen}
         />
       <BootstrapDialog
@@ -257,8 +269,8 @@ const Profile = () => {
             </Button>
           </DialogActions>
       </BootstrapDialog>
-
-    <Button variant="outlined" color="error" onClick={handleDeleteClickOpen}>
+      </Box>
+    <Button variant="outlined" color="error" size="small" onClick={handleDeleteClickOpen}>
       Delete my account
     </Button>
     <BootstrapDialog

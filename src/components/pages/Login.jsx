@@ -21,7 +21,14 @@ const LogIn = () => {
       
 
     return (
-    <Box>
+    <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
+    }}
+    >
       <ProfilePaper>
         <FormControl>
           <FormLabel>Welcome to Dispatch</FormLabel>

@@ -27,6 +27,7 @@ const ProfilePaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   ...theme.typography.body2,
   textAlign: 'center',
+  backgroundColor: theme.palette.background.default
 }));
 
 // Create a ThemeProvider component
@@ -37,7 +38,7 @@ const CustomThemeProvider = (props) => {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
-  // Memoize the theme to prevent unnecessary re-renders
+  // Memorize the theme to prevent unnecessary re-renders
   const selectedTheme = useMemo(() => (mode === "dark" ? darkTheme : lightTheme), [mode]);
 
   return (
