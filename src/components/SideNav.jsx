@@ -13,10 +13,14 @@ import { ThemeContext } from "../ThemeContext";
 import { AuthenticateContext } from "../Context";
 
 function SideNav() {
-  const { logout, decodedToken } = useContext(AuthenticateContext)
+  const { logout, decodedToken,
+    noreg, setNoreg
+   } = useContext(AuthenticateContext)
   const [collapsed, setCollapsed] = useState(true);
   const { mode, toggleTheme } = useContext(ThemeContext);
   const user = decodedToken.user;
+
+  const resetNoreg = setNoreg(false)
 
   return (
     <Sidebar style={{ height: "100vh" }} collapsed={collapsed}>
@@ -46,7 +50,7 @@ function SideNav() {
           </Tooltip>
         ) : ( 
         <Tooltip title="Login" followCursor >
-          <NavLink to="/log-in">
+          <NavLink to="/log-in" onClick={resetNoreg}>
             <MenuItem icon={<LoginOutlinedIcon />}>Login</MenuItem>
           </NavLink>
         </Tooltip>
@@ -60,7 +64,7 @@ function SideNav() {
         </Tooltip>
         ) : (
         <Tooltip title="Register" followCursor >
-          <NavLink to="/register">
+          <NavLink to="/register" onClick={resetNoreg}>
             <MenuItem icon={<PersonAddAltOutlinedIcon />}>Register</MenuItem>
           </NavLink>
         </Tooltip>

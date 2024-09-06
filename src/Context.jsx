@@ -63,8 +63,6 @@ const AuthContextProvider = (props) => {
         }
     );
 
-    const result = await response.json();
-
     if (response.ok) {
       setNoreg(false)
       // Handle successful registration
@@ -76,15 +74,12 @@ const AuthContextProvider = (props) => {
       setOpen(true)
       console.log("Successfully logged in!");
     } else {
+      const result = await response.json();
       // Handle error response
       if (result.error === "Invalid credentials") {
         setNoreg(true)
         // Alert the user about the existing username
         console.error("Invalid login credentials. Please try again")
-      }
-      else {
-        // Handle other possible errors
-        console.error("Error:", result.message);
       }
     }
     } catch (error) {

@@ -7,7 +7,7 @@ import { ThemeContext } from "../../ThemeContext";
 const LogIn = () => {
     const { handleLogin,
       loginUser, password, auth,
-      open, setOpen, noreg, setNoreg} = useContext(AuthenticateContext)
+      open, setOpen, noreg } = useContext(AuthenticateContext)
 
       const { ProfilePaper } = useContext(ThemeContext)
 
